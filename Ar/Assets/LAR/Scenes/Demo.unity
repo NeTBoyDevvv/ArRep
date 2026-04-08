@@ -998,8 +998,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BodyHeight: 1.7
-  latitude: 0
-  longitude: 0
+  latitude: 14.2720931
+  longitude: 121.1130757
   altitude: 0
   gpsMode: 0
   ShowLARCameraOnBackground: 1
