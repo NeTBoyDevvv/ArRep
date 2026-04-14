@@ -427,9 +427,9 @@ MonoBehaviour:
     FrontCamera: 1
   specificTargetCenter: {fileID: 0}
   assembleOptions:
-    FrameSource: 0
+    FrameSource: 1
     FrameFilter: 0
-    SpecifiedFrameSource: {fileID: 0}
+    SpecifiedFrameSource: {fileID: 1391394956}
     SpecifiedFrameFilters: []
     EnableCustomCamera: 1
     DeviceList:
