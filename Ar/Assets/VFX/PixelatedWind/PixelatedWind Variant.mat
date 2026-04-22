@@ -28,9 +28,18 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _Cutoff: 18.8
+    - _NoiseScale: 0.22
+    - _Offset: -400.88
+    - _Offset_Movement: 0
+    - _PixelsScale: 2.21
     - _QueueControl: 0
+    - _Rotation: 2.91
+    - _Scale: 35.7
     - _Speed: 0.62
+    - _SpeedVariation: 30.1
     - _Strength: -0
+    - _VorScale: 4.05
     m_Colors:
     - _Center: {r: 0.2, g: 14.13, b: 0, a: 0}
     - _TwOffset: {r: 0, g: 0, b: 0, a: 0}

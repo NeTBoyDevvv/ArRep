@@ -6,14 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Samples~ 1/MotionTracking/MotionTracking_DeviceMotionAndPlaneDetection/Scenes/MotionTracking_DeviceMotionAndPlaneDetection.unity
-    guid: 584466c35187f864e8e822014ad6c0d0
-  - enabled: 1
-    path: Assets/LAR/Scenes/Demo.unity
-    guid: 11f6911f4ae4b7b4e979ee3548630edc
-  - enabled: 1
-    path: Assets/Scenes/ImageTracking_Targets.unity
-    guid: c5633c5dd1eaddf4ab5995534d042779
+    path: Assets/Scenes/BaseScene.unity
+    guid: 7989978d2333b334d9c536d21481fae6
   m_configObjects:
     EasyAR.Settings: {fileID: 11400000, guid: 67b4d6696e23706429df7c1b5cca6aca, type: 2}
   m_UseUCBPForAssetBundles: 0
