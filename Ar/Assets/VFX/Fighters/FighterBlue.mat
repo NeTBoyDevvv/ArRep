@@ -28,21 +28,26 @@ Material:
     m_TexEnvs:
     - _MaskTexture:
         m_Texture: {fileID: 2800000, guid: 809214e64f4ed014a8d3c86ebae70c36, type: 3}
-        m_Scale: {x: 0.04, y: 0.04}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _MatrixTexture:
         m_Texture: {fileID: 2800000, guid: 7fb8c155ef3675b44994e68d63f84daf, type: 3}
-        m_Scale: {x: 0.04, y: 0.04}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Ambient: 0.53
+    - _AmbientOcclusion: 0.89
+    - _DebugLighting: 0.2
     - _Float: -0.64
     - _Float_1: 3.22
+    - _MatrixSpeedY: 0.08
     - _QueueControl: 0
     - _RevealGradientWidth: 4
     - _RevealMaskFactor: 3
     - _RevealThreshold: 0
     m_Colors:
+    - _AmbientColor: {r: 0.18022428, g: 0.38638863, b: 0.4716981, a: 1}
     - _Color: {r: 0, g: 1.1879369, b: 1.7411011, a: 1}
     - _Color_2: {r: 2.6390157, g: 2.6390157, b: 2.6390157, a: 1}
     - _Color_3: {r: 0, g: 0, b: 0, a: 1}
