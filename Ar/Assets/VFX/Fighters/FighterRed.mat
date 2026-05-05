@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FighterRed
+  m_Shader: {fileID: -6465566751694194690, guid: b2b7e806ea69c974eb99abec433a0afb,
+    type: 3}
+  m_Parent: {fileID: -876546973899608171, guid: b2b7e806ea69c974eb99abec433a0afb,
+    type: 3}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _ARM:
+        m_Texture: {fileID: 2800000, guid: 1dd9a3c6e7d372649959e49c9bc87bb7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Diffuse:
+        m_Texture: {fileID: 2800000, guid: 544434557a8bbf34da825017ec1fa37e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTexture:
+        m_Texture: {fileID: 2800000, guid: 809214e64f4ed014a8d3c86ebae70c36, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _MatrixTexture:
+        m_Texture: {fileID: 2800000, guid: 7fb8c155ef3675b44994e68d63f84daf, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Ambient: 0.53
+    - _AmbientOcclusion: 0.89
+    - _DebugLighting: 0.2
+    - _FlipPassthrough: 1
+    - _Float: -0.64
+    - _Float_1: 3.22
+    - _MatrixSpeedY: 0.08
+    - _PassthroughThreshold: 66.25
+    - _PassthroughWidth: 0.4
+    - _QueueControl: 0
+    - _RevealGradientWidth: 4
+    - _RevealMaskFactor: 3
+    - _RevealThreshold: 0
+    m_Colors:
+    - _AmbientColor: {r: 0.18022428, g: 0.38638863, b: 0.4716981, a: 1}
+    - _Color: {r: 0, g: 1.1879369, b: 1.7411011, a: 1}
+    - _Color_1: {r: 16.223442, g: 0, b: 0.47652617, a: 1}
+    - _Color_2: {r: 2.6390157, g: 2.6390157, b: 2.6390157, a: 1}
+    - _Color_3: {r: 0, g: 0, b: 0, a: 1}
+    - _Color_5: {r: 9.189589, g: 2.952322, b: 0, a: 1}
+    - _DebugColor: {r: 0, g: 0.7911868, b: 1, a: 0}
+    - _PassthroughColor: {r: 47.937244, g: 47.937244, b: 47.937244, a: 1}
+    - _RevealOrigin: {r: 0, g: 0, b: 9.1, a: 0}
+    - _RevealScale: {r: 1, g: 1, b: 0.5, a: 0}
+    - _Vector2: {r: 0.65, g: 1, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &2640019748270564656
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10

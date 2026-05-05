@@ -42,6 +42,7 @@ Material:
     - _Float: -0.64
     - _Float_1: 3.22
     - _MatrixSpeedY: 0.08
+    - _PassthroughWidth: 0.4
     - _QueueControl: 0
     - _RevealGradientWidth: 4
     - _RevealMaskFactor: 3
@@ -52,6 +53,7 @@ Material:
     - _Color_2: {r: 2.6390157, g: 2.6390157, b: 2.6390157, a: 1}
     - _Color_3: {r: 0, g: 0, b: 0, a: 1}
     - _DebugColor: {r: 0, g: 0.7911868, b: 1, a: 0}
+    - _PassthroughColor: {r: 47.937244, g: 47.937244, b: 47.937244, a: 1}
     - _RevealOrigin: {r: 0, g: 0, b: 9.1, a: 0}
     - _RevealScale: {r: 1, g: 1, b: 0.5, a: 0}
     - _Vector2: {r: 0.65, g: 1, b: 0, a: 0}

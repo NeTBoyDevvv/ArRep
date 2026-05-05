@@ -64,8 +64,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Destruction: 24.1
     - _QueueControl: 0
     - _QueueOffset: 0
-    m_Colors: []
+    m_Colors:
+    - _ClipDirection: {r: 0, g: 1, b: 0, a: 0}
+    - _ClipPoint: {r: 0, g: -2, b: 0, a: 0}
+    - _Color: {r: 0, g: 0.39118576, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

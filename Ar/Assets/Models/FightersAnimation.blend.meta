@@ -7,8 +7,28 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: BootsRed
+    second: {fileID: 2100000, guid: 76349b46bcaf6584b9ddb4655e247b7a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: HelmetBlue
     second: {fileID: 2100000, guid: 6336d19b159fdc84b955e64ea6cfd548, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: HelmetRed
+    second: {fileID: 2100000, guid: e7d34c2635032694ea94ec153d8ffcc7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ShortsRed
+    second: {fileID: 2100000, guid: 088c689415656b846b54106cce70bf6d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: gloves_red
+    second: {fileID: 2100000, guid: 760d0c0398ff37d438823bb3b14d2e46, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -79,9 +99,9 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
-    normalCalculationMode: 4
+    normalCalculationMode: 0
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
-    blendShapeNormalImportMode: 1
+    blendShapeNormalImportMode: 2
     normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 1

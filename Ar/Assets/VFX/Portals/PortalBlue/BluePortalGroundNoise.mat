@@ -23,7 +23,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ARPG_Arcane_Trail_02_M
+  m_Name: BluePortalGroundNoise
   m_Shader: {fileID: -6465566751694194690, guid: 7f11fe28133f1a74594785107b98f2fe,
     type: 3}
   m_Parent: {fileID: 0}
