@@ -40,6 +40,9 @@ public class NetworkCountdownTimer : MonoBehaviour
     public bool HasTrustedInternetTime => hasTrustedInternetTime;
     public bool IsUsingLocalFallback => !hasTrustedInternetTime;
     public bool HasInvokedReachedEvent => hasInvokedReachedEvent;
+    public TimeSpan RemainingTime => GetRemainingTime();
+    public float RemainingSecondsFloat => Mathf.Max(0f, (float)GetRemainingTime().TotalSeconds);
+    public int RemainingWholeSeconds => Mathf.Max(0, Mathf.CeilToInt((float)GetRemainingTime().TotalSeconds));
 
     private void Awake()
     {

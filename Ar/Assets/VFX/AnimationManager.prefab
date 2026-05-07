@@ -1096,6 +1096,7 @@ GameObject:
   - component: {fileID: 8499727173933602046}
   - component: {fileID: 4631489347647663739}
   - component: {fileID: 4496274021970915760}
+  - component: {fileID: 3263796982192434803}
   m_Layer: 0
   m_Name: AnimationManager
   m_TagString: Untagged
@@ -1204,6 +1205,26 @@ PlayableDirector:
     value: {fileID: 8499727173933602046}
   m_ExposedReferences:
     m_References: []
+--- !u!114 &3263796982192434803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5111383646949662449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 116a62d3d7701464d8896b3911734b49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CountdownTimerMaterialTimeLeftBridge
+  findCountdownTimerAutomatically: 1
+  countdownTimer: {fileID: 0}
+  minutesRenderer: {fileID: 7718724307068459462}
+  minutesMaterialIndex: 0
+  secondsRenderer: {fileID: 8588447992596748440}
+  secondsMaterialIndex: 0
+  timeLeftPropertyName: TimeLeft
+  useWholeSeconds: 1
 --- !u!1 &6086705731079261055
 GameObject:
   m_ObjectHideFlags: 0

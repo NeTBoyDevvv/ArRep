@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1042191778887947741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1473136868584070612}
+  - component: {fileID: 8606121837628614971}
+  m_Layer: 0
+  m_Name: ARLauncher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1473136868584070612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042191778887947741}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 439.08765, y: 970.3103, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8606121837628614971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042191778887947741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6846718add01f74bac64619233a9096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CrossPlatformARLauncher
+  startArButton: {fileID: 0}
+  sceneCameraToDisable: {fileID: 0}
+  objectsToDisableOnStart:
+  - {fileID: 0}
+  placementPrefab: {fileID: 886524185944988146, guid: 0b46217e003eb2649a675ca02f2020aa,
+    type: 3}
+  fallbackCubeSizeMeters: 0.15
+  placeOnFirstDetectedPlane: 1
+  keepUpdatingPositionUntilFound: 1
+  requireHorizontalUpwardPlane: 1
+  allowFeaturePointReticleFallback: 1
+  raycastViewportY: 0.38
+  minimumPlacementDistanceMeters: 0.2
+  maximumPlacementDistanceMeters: 4
+  stablePlaneFramesRequired: 6
+  placementRotationYOffset: 180
+  keepPlacedObjectFacingCameraOnY: 1
+  showDetectedPlanes: 1
+  hideDetectedPlanesAfterPlacement: 1
+  planeFillColor: {r: 0.1, g: 0.9, b: 0.55, a: 0.22}
+  planeOutlineColor: {r: 0.15, g: 1, b: 0.65, a: 0.95}
+  planeOutlineWidth: 0.018
+  disableVSync: 1
+  useDisplayRefreshRate: 1
+  fallbackTargetFrameRate: 120
+  onArStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onObjectPlaced:
+    m_PersistentCalls:
+      m_Calls: []
+  onArUnsupported:
+    m_PersistentCalls:
+      m_Calls: []

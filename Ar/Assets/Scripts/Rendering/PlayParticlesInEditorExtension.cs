@@ -147,6 +147,7 @@ public static void PlayInEditor(this ParticleSystem particleSystem, bool withChi
 		/* --------------------------------- Worker Coroutines ------------------------------------ */
 		/* ---------------------------------------------------------------------------------------- */
 		#region Editor Coroutines
+#if UNITY_EDITOR
 		static IEnumerator DoCallbackWhenFinished(ParticleSystem particleSystem, Action effectFinished = null)
 		{
 			//[always check if the state of the system changes or if we exit play mode]
@@ -221,6 +222,7 @@ public static void PlayInEditor(this ParticleSystem particleSystem, bool withChi
 			}
 			
 		}
+#endif
 
 		#endregion
 
