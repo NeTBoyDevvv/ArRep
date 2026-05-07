@@ -67,9 +67,10 @@ Material:
     - _Destruction: 24.1
     - _DestructionLengthBias: -0.3
     - _Inverted: 1
-    - _MaskNoiseAmplitude: 1.67
-    - _MaskNoiseScale: 468.11
-    - _MaskNoiseSpeed: 0.005
+    - _MaskNoiseAmplitude: 1.28
+    - _MaskNoiseScale: 3.2
+    - _MaskNoiseSpeed: 0.21
+    - _MaskPixelsScale: 1
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:

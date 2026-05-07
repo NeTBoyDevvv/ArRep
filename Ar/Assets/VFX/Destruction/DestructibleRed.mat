@@ -66,6 +66,7 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _Amplitude: 0
+    - _ClipY: 0
     - _DestructionLengthBias: 0
     - _Float: 0
     - _Inverted: 0
@@ -78,7 +79,7 @@ Material:
     - _WorldNoiseScale: 0.13
     - _kDirectionality: -2.33
     - _kNoise: 3.8
-    - _kNormal: 18.07
+    - _kNormal: 53.41
     m_Colors:
     - _Color: {r: 33.89676, g: 0.5556731, b: 0, a: 0}
     - _DirectionalityVector: {r: 0, g: -0.63, b: 0, a: 1}

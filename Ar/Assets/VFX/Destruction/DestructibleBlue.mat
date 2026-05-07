@@ -66,16 +66,20 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _Amplitude: 0
+    - _ClipY: 0
+    - _DestructionLengthBias: 0
     - _Float: 0
+    - _Inverted: 0
     - _MinimizeIndividualTriangles: 0
     - _NoiseScale: 2.73
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _ToggleDestructionBakes: 0
     - _WorldNoiseAmplitude: 7
     - _WorldNoiseScale: 0.17
     - _kDirectionality: 2.85
     - _kNoise: 8.97
-    - _kNormal: 45
+    - _kNormal: 11
     m_Colors:
     - _Color: {r: 0, g: 3.110898, b: 5.992157, a: 0}
     - _DirectionalityVector: {r: 0, g: 2, b: 0, a: 1}
