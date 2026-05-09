@@ -69,14 +69,14 @@ Material:
     - _Inverted: 1
     - _MaskNoiseAmplitude: 1.28
     - _MaskNoiseScale: 3.2
-    - _MaskNoiseSpeed: 0.21
+    - _MaskNoiseSpeed: 0.65
     - _MaskPixelsScale: 1
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
     - _ClipDirection: {r: 0, g: 1, b: 0, a: 0}
     - _ClipPoint: {r: 0, g: -2, b: 0, a: 0}
-    - _Color: {r: 0, g: 0.3722396, b: 1, a: 1}
+    - _Color: {r: 0.041073352, g: 0.2753091, b: 0.6698113, a: 1}
     - _Color_1: {r: 0.8122524, g: 0.8122524, b: 0.8122524, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
