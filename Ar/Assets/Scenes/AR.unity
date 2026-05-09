@@ -376,7 +376,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1264828366
+--- !u!1 &2122811379
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -384,71 +384,68 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1264828367}
-  - component: {fileID: 1264828368}
+  - component: {fileID: 2122811380}
+  - component: {fileID: 2122811381}
   m_Layer: 0
-  m_Name: ARLauncher
+  m_Name: ARMarkerLauncher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1264828367
+--- !u!4 &2122811380
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1264828366}
+  m_GameObject: {fileID: 2122811379}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 439.08765, y: 970.3103, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1264828368
+--- !u!114 &2122811381
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1264828366}
+  m_GameObject: {fileID: 2122811379}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6846718add01f74bac64619233a9096, type: 3}
+  m_Script: {fileID: 11500000, guid: 425cfee52cfa89643835241a365b900c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CrossPlatformARLauncher
+  m_EditorClassIdentifier: Assembly-CSharp::CrossPlatformARImageMarkerLauncher
   startArButton: {fileID: 7452926328818509419}
   sceneCameraToDisable: {fileID: 0}
   objectsToDisableOnStart:
   - {fileID: 7452926328818509420}
-  placementPrefab: {fileID: 886524185944988146, guid: 0b46217e003eb2649a675ca02f2020aa,
+  referenceImageLibrary: {fileID: 11400000, guid: 871840cbf15504449ac7f82a1dc9855f,
+    type: 2}
+  trackedImageNameFilter: 
+  maxMovingImages: 1
+  hideContentWhenMarkerNotTracked: 1
+  placementPrefab: {fileID: 5111383646949662449, guid: 7d5c76d17e6067d4d90d4327f9e7005e,
     type: 3}
   fallbackCubeSizeMeters: 0.15
-  placeOnFirstDetectedPlane: 1
-  keepUpdatingPositionUntilFound: 1
-  requireHorizontalUpwardPlane: 1
-  allowFeaturePointReticleFallback: 1
-  raycastViewportY: 0.38
-  minimumPlacementDistanceMeters: 0.2
-  maximumPlacementDistanceMeters: 4
-  stablePlaneFramesRequired: 6
-  placementRotationYOffset: 180
-  keepPlacedObjectFacingCameraOnY: 1
-  showDetectedPlanes: 1
-  hideDetectedPlanesAfterPlacement: 1
-  planeFillColor: {r: 0.1, g: 0.9, b: 0.55, a: 0.22}
-  planeOutlineColor: {r: 0.15, g: 1, b: 0.65, a: 0.95}
-  planeOutlineWidth: 0.018
+  localPositionOffset: {x: 0, y: 0, z: 0}
+  localEulerOffset: {x: 0, y: 180, z: 0}
+  localScaleMultiplier: {x: 0.5, y: 0.5, z: 0.5}
+  useFixedWorldScale: 1
+  lockContentAfterFirstMarkerFound: 1
+  lockDelaySeconds: 0.35
+  keepPlacedObjectFacingCameraOnY: 0
   disableVSync: 1
   useDisplayRefreshRate: 1
   fallbackTargetFrameRate: 120
   onArStarted:
     m_PersistentCalls:
       m_Calls: []
-  onObjectPlaced:
+  onMarkerFound:
     m_PersistentCalls:
       m_Calls: []
   onArUnsupported:
@@ -570,7 +567,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 540332441785233606, guid: f986c1c5599da9f4e98de423181aa637,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7452926328818509422}
   m_SourcePrefab: {fileID: 100100000, guid: f986c1c5599da9f4e98de423181aa637, type: 3}
 --- !u!114 &7452926328818509419 stripped
 MonoBehaviour:
@@ -590,6 +591,24 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 7452926328818509418}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7452926328818509421 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 540332441785233606, guid: f986c1c5599da9f4e98de423181aa637,
+    type: 3}
+  m_PrefabInstance: {fileID: 7452926328818509418}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7452926328818509422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7452926328818509421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6366ee97f6b541449155028b9487355a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_SpriteAnimator
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -598,4 +617,4 @@ SceneRoots:
   - {fileID: 861199082}
   - {fileID: 7452926328818509418}
   - {fileID: 109079509}
-  - {fileID: 1264828367}
+  - {fileID: 2122811380}
