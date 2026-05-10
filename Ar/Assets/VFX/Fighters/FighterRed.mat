@@ -51,7 +51,7 @@ Material:
     - _Float: -0.64
     - _Float_1: 3.22
     - _MatrixSpeedY: 0.08
-    - _PassthroughThreshold: 66.25
+    - _PassthroughThreshold: 66.01
     - _PassthroughWidth: 0.4
     - _QueueControl: 0
     - _RevealGradientWidth: 4
