@@ -3391,6 +3391,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PortalRed1_Slash
       objectReference: {fileID: 0}
+    - target: {fileID: 6992388847116166763, guid: 8dce50816c2978849a1e3b33674dc464,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4090,6 +4095,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PortalRed1_Fire
+      objectReference: {fileID: 0}
+    - target: {fileID: 9089411782981194850, guid: 0193173c8759a124182b09b8db817698,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9089411782981194851, guid: 0193173c8759a124182b09b8db817698,
         type: 3}
@@ -9258,6 +9268,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PortalRed2_Fire
       objectReference: {fileID: 0}
+    - target: {fileID: 9089411782981194850, guid: 0193173c8759a124182b09b8db817698,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9089411782981194851, guid: 0193173c8759a124182b09b8db817698,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -11098,6 +11113,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PortalRed2_Slash
+      objectReference: {fileID: 0}
+    - target: {fileID: 6992388847116166763, guid: 8dce50816c2978849a1e3b33674dc464,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7143182209120728455, guid: 8dce50816c2978849a1e3b33674dc464,
         type: 3}
