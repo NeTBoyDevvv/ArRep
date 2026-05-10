@@ -1207,6 +1207,7 @@ GameObject:
   - component: {fileID: 4496274021970915760}
   - component: {fileID: 3263796982192434803}
   - component: {fileID: 3185201161634248812}
+  - component: {fileID: 34254132798814038}
   m_Layer: 0
   m_Name: AnimationManager
   m_TagString: Untagged
@@ -1371,6 +1372,32 @@ MonoBehaviour:
   - {fileID: 6743975974690962007}
   - {fileID: 7953355723641926832}
   materialParameter: _LocalToWorld
+--- !u!114 &34254132798814038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5111383646949662449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e26eb19c61cce4a89e540a401c3399, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Rendering.DestructionController
+  isWorldToLocal: 1
+  destructables:
+  - {fileID: 342762410952447114}
+  - {fileID: 781977239738349902}
+  - {fileID: 2499144847148024629}
+  - {fileID: 7740410490819162044}
+  - {fileID: 4897631730690597962}
+  - {fileID: 2192157133181840466}
+  - {fileID: 7880290830288670848}
+  - {fileID: 2077667561976867200}
+  - {fileID: 5578325013840063660}
+  - {fileID: 4608729148182754656}
+  - {fileID: 4398030240194416339}
+  materialParameter: _WorldToTrack
 --- !u!1 &6086705731079261055
 GameObject:
   m_ObjectHideFlags: 0
