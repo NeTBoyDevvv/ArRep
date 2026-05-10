@@ -11,49 +11,27 @@ namespace Rendering
     
         private Vector3 _lastPosition;
     
-#if UNITY_EDITOR
-        void OnEnable()
+        void Awake()
         {
-            EditorApplication.update += EditorUpdate;
             _lastPosition = transform.localPosition;
         }
-    
-        void OnDisable()
-        {
-            EditorApplication.update -= EditorUpdate;
-        }
-    
-        void EditorUpdate()
-        {
-            // This runs every frame in Editor
-            CheckLocationChanges();
-        }
-    
+        
         void OnValidate()
         {
-            // Runs when any serialized field changes
-            CheckLocationChanges();
+            Update();
         }
-#endif
-        void CheckLocationChanges()
+        
+        void Update()
         {
             if (transform.localPosition != _lastPosition)
             {
-                OnPositionChanged();
                 _lastPosition = transform.localPosition;
+                transform.parent.GetComponent<Renderer>().sharedMaterial.SetVector(
+                    "_HighlightPosition", new Vector4(
+                        _lastPosition.x,
+                        _lastPosition.y,
+                        _lastPosition.z, 0));
             }
-        }
-    
-        void OnPositionChanged()
-        {
-            SetHighlightPosition();
-        }
-    
-        void SetHighlightPosition()
-        {
-            transform.parent.GetComponent<Renderer>().sharedMaterial.SetVector("_HighlightPosition", new Vector4(transform.localPosition.x,
-                transform.localPosition.y,
-                transform.localPosition.z, 0));
         }
     }
 }

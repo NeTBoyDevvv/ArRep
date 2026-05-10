@@ -20,11 +20,13 @@ public class UpdateLetterArrayParameters : MonoBehaviour
     {
         foreach (Transform letter in transform)
         {
-            letter.GetComponent<Renderer>().sharedMaterial.SetFloat("_NoiseAmplitude", noiseAmplitude);
-            letter.GetComponent<Renderer>().sharedMaterial.SetFloat("_NoiseScale", noiseScale);
-            letter.GetComponent<Renderer>().sharedMaterial.SetColor("_Color", color);
-            letter.GetComponent<Renderer>().sharedMaterial.SetFloat("_YSize", ySize);
-            
+            if (letter.GetComponent<Renderer>() && letter.GetComponent<Renderer>().sharedMaterial)
+            {
+                letter.GetComponent<Renderer>().sharedMaterial.SetFloat("_NoiseAmplitude", noiseAmplitude);
+                letter.GetComponent<Renderer>().sharedMaterial.SetFloat("_NoiseScale", noiseScale);
+                letter.GetComponent<Renderer>().sharedMaterial.SetColor("_Color", color);
+                letter.GetComponent<Renderer>().sharedMaterial.SetFloat("_YSize", ySize);
+            }
         }
     }
 }

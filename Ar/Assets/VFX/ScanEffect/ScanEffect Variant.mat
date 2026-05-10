@@ -28,6 +28,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _Alpha: 0.19
     - _DieingRadius: 34.06
     - _EmergingRadius: 75.71
     - _GradientScale: 26
