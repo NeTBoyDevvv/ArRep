@@ -26,6 +26,15 @@ public class NetworkCountdownTimer : MonoBehaviour
     [SerializeField] [Min(5f)] private float retryDelayIfOffline = 30f;
     [SerializeField] [Min(30f)] private float resyncDelayIfOnline = 300f;
 
+    [Header("Completion Spawn")]
+    [SerializeField] private GameObject completionSpawnPrefab;
+    [SerializeField] private Transform completionSpawnReference;
+    [SerializeField] private bool parentSpawnedPrefabToReference;
+    [SerializeField] private Vector3 localPositionOffset = Vector3.zero;
+    [SerializeField] private Vector3 localEulerOffset = Vector3.zero;
+    [SerializeField] private Vector3 localScaleMultiplier = Vector3.one;
+    [SerializeField] private bool disableTimerGameObjectAfterCompletion = true;
+
     [Header("Event")]
     [SerializeField] private CountdownReachedEvent onReachedUsingInternetTime;
 
@@ -36,6 +45,7 @@ public class NetworkCountdownTimer : MonoBehaviour
     private bool hasInvokedReachedEvent;
     private bool lastFetchSucceeded;
     private Coroutine syncRoutine;
+    private GameObject spawnedCompletionObject;
 
     public bool HasTrustedInternetTime => hasTrustedInternetTime;
     public bool IsUsingLocalFallback => !hasTrustedInternetTime;
@@ -43,6 +53,7 @@ public class NetworkCountdownTimer : MonoBehaviour
     public TimeSpan RemainingTime => GetRemainingTime();
     public float RemainingSecondsFloat => Mathf.Max(0f, (float)GetRemainingTime().TotalSeconds);
     public int RemainingWholeSeconds => Mathf.Max(0, Mathf.CeilToInt((float)GetRemainingTime().TotalSeconds));
+    public GameObject SpawnedCompletionObject => spawnedCompletionObject;
 
     private void Awake()
     {
@@ -284,7 +295,44 @@ public class NetworkCountdownTimer : MonoBehaviour
         }
 
         hasInvokedReachedEvent = true;
+        SpawnCompletionPrefab();
         onReachedUsingInternetTime?.Invoke();
+
+        if (disableTimerGameObjectAfterCompletion)
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    private void SpawnCompletionPrefab()
+    {
+        if (completionSpawnPrefab == null || spawnedCompletionObject != null)
+        {
+            return;
+        }
+
+        Quaternion localRotationOffset = Quaternion.Euler(localEulerOffset);
+        Vector3 spawnedScale = Vector3.Scale(completionSpawnPrefab.transform.localScale, localScaleMultiplier);
+
+        if (completionSpawnReference != null && parentSpawnedPrefabToReference)
+        {
+            spawnedCompletionObject = Instantiate(completionSpawnPrefab, completionSpawnReference, false);
+            spawnedCompletionObject.transform.localPosition = localPositionOffset;
+            spawnedCompletionObject.transform.localRotation = localRotationOffset;
+            spawnedCompletionObject.transform.localScale = spawnedScale;
+            return;
+        }
+
+        Vector3 worldPosition = localPositionOffset;
+        Quaternion worldRotation = localRotationOffset;
+        if (completionSpawnReference != null)
+        {
+            worldPosition = completionSpawnReference.TransformPoint(localPositionOffset);
+            worldRotation = completionSpawnReference.rotation * localRotationOffset;
+        }
+
+        spawnedCompletionObject = Instantiate(completionSpawnPrefab, worldPosition, worldRotation);
+        spawnedCompletionObject.transform.localScale = spawnedScale;
     }
 
     [Serializable]
