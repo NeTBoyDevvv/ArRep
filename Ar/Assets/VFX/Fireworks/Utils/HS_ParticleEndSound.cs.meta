@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 2220b91f81e9678428298581fcb952a8
+timeCreated: 1516192333
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 123720
+  packageName: Fireworks Pack with sounds 3D&2D
+  packageVersion: 3.0.0
+  assetPath: Assets/Hovl Studio/Fireworks/Scripts/HS_ParticleEndSound.cs
+  uploadId: 570800

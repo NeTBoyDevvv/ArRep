@@ -39,7 +39,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _ARM:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 442b5d898ef9f4845b437ce64dd6e839, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Diffuse:
@@ -74,11 +74,17 @@ Material:
     - _DestructionLengthBias: 0
     - _Float: 0
     - _Inverted: 0
+    - _LineFactor: -91.58
+    - _LinePlanarMoveDuration_M: 10.8
+    - _LineRadius: 0
+    - _LineRadiusFactor_F: 33.3
+    - _LineTurn: 0
     - _MinimizeIndividualTriangles: 0
     - _NoiseScale: 2.73
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ToggleDestructionBakes: 0
+    - _V0: 1
     - _WorldNoiseAmplitude: 7
     - _WorldNoiseScale: 0.17
     - _kDirectionality: 2.85
@@ -87,5 +93,6 @@ Material:
     m_Colors:
     - _Color: {r: 0, g: 4.7152395, b: 9.082411, a: 0}
     - _DirectionalityVector: {r: 0, g: 2, b: 0, a: 1}
+    - _LineCoor: {r: 22.1, g: -2.9, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

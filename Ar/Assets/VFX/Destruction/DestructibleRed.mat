@@ -70,15 +70,21 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _Amplitude: 0
-    - _ClipY: 0
+    - _ClipY: -24.65
     - _DestructionLengthBias: 0
     - _Float: 0
     - _Inverted: 0
+    - _LineFactor: -130.9
+    - _LinePlanarMoveDuration_M: 1
+    - _LineRadius: 3.1
+    - _LineRadiusFactor_F: 4.6
+    - _LineTurn: 0
     - _MinimizeIndividualTriangles: 0
     - _NoiseScale: 5.8
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ToggleDestructionBakes: 0
+    - _V0: 1
     - _WorldNoiseAmplitude: 7
     - _WorldNoiseScale: 0.13
     - _kDirectionality: -2.33
@@ -87,5 +93,6 @@ Material:
     m_Colors:
     - _Color: {r: 22.363522, g: 0.31081712, b: 0, a: 0}
     - _DirectionalityVector: {r: 0, g: -0.63, b: 0, a: 1}
+    - _LineCoor: {r: 22.1, g: -2.9, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
