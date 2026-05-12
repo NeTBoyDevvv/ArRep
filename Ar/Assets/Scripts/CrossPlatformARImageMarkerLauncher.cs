@@ -42,6 +42,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [Header("Content")]
     [SerializeField] private GameObject placementPrefab;
     [SerializeField] private float fallbackCubeSizeMeters = 0.15f;
+    [SerializeField] private float markerlessSpawnDistance = 1.5f;
     [SerializeField] private Vector3 localPositionOffset = Vector3.zero;
     [SerializeField] private Vector3 localEulerOffset = Vector3.zero;
     [SerializeField] private Vector3 localScaleMultiplier = Vector3.one;
@@ -105,6 +106,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     private Vector3 lockedReferencePosition;
     private Quaternion lockedReferenceRotation = Quaternion.identity;
     private Vector3 lockedReferenceLossyScale = Vector3.one;
+    private bool spawnWithoutMarkerOnStart;
 
     private void Awake()
     {
@@ -168,15 +170,32 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     public void StartAR()
     {
+        StartARInternal(false);
+    }
+
+    public void StartARAndSpawnWithoutMarker()
+    {
+        if (arStartRequested)
+        {
+            SpawnContentWithoutMarker();
+            return;
+        }
+
+        StartARInternal(true);
+    }
+
+    private void StartARInternal(bool spawnWithoutMarker)
+    {
         if (arStartRequested)
             return;
 
-        if (referenceImageLibrary == null)
+        if (!spawnWithoutMarker && referenceImageLibrary == null)
         {
             Debug.LogError("[AR Marker] Reference Image Library is not assigned.");
             return;
         }
 
+        spawnWithoutMarkerOnStart = spawnWithoutMarker;
         arStartRequested = true;
         didInvokeStarted = false;
         contentLockedToWorld = false;
@@ -199,8 +218,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         pendingLockTrackableId = default;
         pendingLockContent = null;
         pendingLockElapsed = 0f;
-        lockedContentObject = null;
-        DestroyLockedAnchor();
+        spawnWithoutMarkerOnStart = false;
         SetAdjustmentUiVisible(false);
         DestroySpawnedContent();
     }
@@ -222,9 +240,16 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         RefreshArInputManager();
         ApplyArCameraClipping();
 
-        trackedImageManager.referenceLibrary = referenceImageLibrary;
-        trackedImageManager.requestedMaxNumberOfMovingImages = Mathf.Max(0, maxMovingImages);
-        trackedImageManager.enabled = true;
+        if (spawnWithoutMarkerOnStart)
+        {
+            trackedImageManager.enabled = false;
+        }
+        else
+        {
+            trackedImageManager.referenceLibrary = referenceImageLibrary;
+            trackedImageManager.requestedMaxNumberOfMovingImages = Mathf.Max(0, maxMovingImages);
+            trackedImageManager.enabled = true;
+        }
 
         Debug.Log("[AR Marker] Checking availability...");
         yield return ARSession.CheckAvailability();
@@ -261,6 +286,9 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
         RefreshArInputManager();
         Debug.Log($"[AR Marker] Runtime session state = {ARSession.state}");
+
+        if (spawnWithoutMarkerOnStart)
+            SpawnContentWithoutMarker();
     }
 
 #if UNITY_ANDROID
@@ -561,6 +589,51 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         Debug.Log("[AR Marker] Content attached to AR anchor.", lockedContentAnchor);
     }
 
+    private void SpawnContentWithoutMarker()
+    {
+        if (lockedContentObject != null)
+        {
+            lockedContentObject.SetActive(true);
+            SetAdjustmentUiVisible(showAdjustmentUiAfterLock);
+            return;
+        }
+
+        Transform cameraTransform = arCamera != null ? arCamera.transform : null;
+        if (cameraTransform == null && Camera.main != null)
+            cameraTransform = Camera.main.transform;
+
+        if (cameraTransform == null)
+        {
+            Debug.LogWarning("[AR Marker] Cannot spawn without marker because no AR camera is available yet.");
+            return;
+        }
+
+        DestroySpawnedContent();
+        ResetPendingLock();
+
+        lockedReferencePosition = cameraTransform.position + cameraTransform.forward * Mathf.Max(0.05f, markerlessSpawnDistance);
+        lockedReferenceRotation = Quaternion.LookRotation(cameraTransform.forward, Vector3.up);
+        lockedReferenceLossyScale = Vector3.one;
+        hasLockedReferencePose = true;
+        contentLockedToWorld = true;
+
+        if (trackedImageManager != null)
+            trackedImageManager.enabled = false;
+
+        GameObject content = CreatePlacementContentInstance("Code Launch");
+        content.transform.position = TransformReferencePoint(localPositionOffset);
+        content.transform.rotation = lockedReferenceRotation * Quaternion.Euler(localEulerOffset);
+        content.transform.localScale = GetLockedLocalScale(null);
+        content.SetActive(true);
+        lockedContentObject = content;
+
+        SyncAdjustmentUiFromContent(content);
+        SetAdjustmentUiVisible(showAdjustmentUiAfterLock);
+        CreateLockedContentAnchorAsync(content, new Pose(lockedReferencePosition, lockedReferenceRotation));
+
+        Debug.Log("[AR Marker] Content spawned without marker after code launch.", content);
+    }
+
     private void TryLockContentToWorld(TrackableId trackableId, GameObject content)
     {
         if (content == null || contentLockedToWorld)
@@ -617,11 +690,16 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     private void DestroySpawnedContent()
     {
+        GameObject lockedObject = lockedContentObject;
+
         foreach (GameObject content in spawnedContent.Values)
         {
             if (content != null)
                 Destroy(content);
         }
+
+        if (lockedObject != null && !spawnedContent.ContainsValue(lockedObject))
+            Destroy(lockedObject);
 
         spawnedContent.Clear();
         lockedContentObject = null;
