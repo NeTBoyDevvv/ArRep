@@ -106,30 +106,42 @@ public sealed class ARCameraPoseFallback : MonoBehaviour
 
     private void ApplyPose()
     {
-        lastPoseHadInputSystemPosition = TryReadInputAction(positionAction, out Vector3 position);
-        lastPoseHadInputSystemRotation = TryReadInputAction(rotationAction, out Quaternion rotation);
-
         lastPoseHadXrPosition = false;
         lastPoseHadXrRotation = false;
+        lastPoseHadInputSystemPosition = false;
+        lastPoseHadInputSystemRotation = false;
 
-        if (!lastPoseHadInputSystemPosition || !lastPoseHadInputSystemRotation)
+        // XR legacy API is the authoritative source — applies directly from the XR subsystem
+        // without going through the Input System pipeline, so it works even when
+        // HandheldARInputDevice is not yet registered or returns a zero position.
+        if (!trackingDevice.isValid || !CanReadAnyPose(trackingDevice))
+            FindTrackingDevice();
+
+        if (trackingDevice.isValid)
         {
-            if (!trackingDevice.isValid || !CanReadAnyPose(trackingDevice))
-                FindTrackingDevice();
+            lastPoseHadXrPosition = TryReadXrPosition(trackingDevice, out Vector3 xrPosition);
+            lastPoseHadXrRotation = TryReadXrRotation(trackingDevice, out Quaternion xrRotation);
 
-            if (trackingDevice.isValid)
-            {
-                if (!lastPoseHadInputSystemPosition)
-                    lastPoseHadXrPosition = TryReadXrPosition(trackingDevice, out position);
-                if (!lastPoseHadInputSystemRotation)
-                    lastPoseHadXrRotation = TryReadXrRotation(trackingDevice, out rotation);
-            }
+            if (lastPoseHadXrPosition)
+                transform.localPosition = xrPosition;
+            if (lastPoseHadXrRotation)
+                transform.localRotation = xrRotation;
         }
 
-        if (lastPoseHadInputSystemPosition || lastPoseHadXrPosition)
-            transform.localPosition = position;
-        if (lastPoseHadInputSystemRotation || lastPoseHadXrRotation)
-            transform.localRotation = rotation;
+        // Input System fallback — only used when XR legacy API has no device
+        if (!lastPoseHadXrPosition)
+        {
+            lastPoseHadInputSystemPosition = TryReadInputAction(positionAction, out Vector3 isPosition);
+            if (lastPoseHadInputSystemPosition)
+                transform.localPosition = isPosition;
+        }
+
+        if (!lastPoseHadXrRotation)
+        {
+            lastPoseHadInputSystemRotation = TryReadInputAction(rotationAction, out Quaternion isRotation);
+            if (lastPoseHadInputSystemRotation)
+                transform.localRotation = isRotation;
+        }
     }
 
     private static bool TryReadInputAction<TValue>(InputAction action, out TValue value)

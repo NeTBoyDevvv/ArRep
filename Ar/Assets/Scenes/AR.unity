@@ -544,7 +544,7 @@ MonoBehaviour:
   markerlessSpawnDistance: 1.5
   localPositionOffset: {x: 0, y: 0, z: 0}
   localEulerOffset: {x: -90, y: 180, z: 0}
-  localScaleMultiplier: {x: 1, y: 1, z: 1}
+  localScaleMultiplier: {x: 0.02, y: 0.02, z: 0.02}
   useFixedWorldScale: 1
   lockContentAfterFirstMarkerFound: 1
   lockDelaySeconds: 0
@@ -553,6 +553,7 @@ MonoBehaviour:
   positionAdjustmentRange: 1
   scaleAdjustmentMin: 0.01
   scaleAdjustmentMax: 3
+  enableAdjustmentUi: 1
   disableVSync: 1
   useDisplayRefreshRate: 1
   fallbackTargetFrameRate: 120

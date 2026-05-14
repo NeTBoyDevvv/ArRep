@@ -56,6 +56,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [SerializeField] private float positionAdjustmentRange = 1f;
     [SerializeField] private float scaleAdjustmentMin = 0.01f;
     [SerializeField] private float scaleAdjustmentMax = 3f;
+    [SerializeField] private bool enableAdjustmentUi = true;
 
     [Header("Performance")]
     [SerializeField] private bool disableVSync = true;
@@ -354,6 +355,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         trackedPoseDriver.positionInput = new InputActionProperty(CreatePositionAction());
         trackedPoseDriver.rotationInput = new InputActionProperty(CreateRotationAction());
         trackedPoseDriver.trackingStateInput = new InputActionProperty(CreateTrackingStateAction());
+
         arCameraPoseFallback = arCameraObject.AddComponent<ARCameraPoseFallback>();
 
         xrOrigin.CameraFloorOffsetObject = cameraOffset;
@@ -555,9 +557,27 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     private async void CreateLockedContentAnchorAsync(GameObject content, Pose anchorPose)
     {
-        if (content == null || arAnchorManager == null || !arAnchorManager.enabled || arAnchorManager.subsystem == null)
+        if (content == null || arAnchorManager == null)
         {
             Debug.LogWarning("[AR Marker] ARAnchorManager is not available. Content remains locked in Unity world space.");
+            return;
+        }
+
+        // Subsystem may not be ready yet at the moment of first marker detection — wait up to 5 s
+        float waitedSeconds = 0f;
+        while (waitedSeconds < 5f)
+        {
+            if (arAnchorManager.enabled && arAnchorManager.subsystem != null && arAnchorManager.subsystem.running)
+                break;
+            await System.Threading.Tasks.Task.Delay(200);
+            waitedSeconds += 0.2f;
+            if (content == null || lockedContentObject != content)
+                return;
+        }
+
+        if (!arAnchorManager.enabled || arAnchorManager.subsystem == null || !arAnchorManager.subsystem.running)
+        {
+            Debug.LogWarning($"[AR Marker] ARAnchorManager subsystem not ready after {waitedSeconds:0.0}s. Content remains locked in Unity world space.");
             return;
         }
 
@@ -734,7 +754,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     private void BuildAdjustmentUi()
     {
-        if (adjustmentCanvasObject != null)
+        if (!enableAdjustmentUi || adjustmentCanvasObject != null)
             return;
 
         runtimeUiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
@@ -832,11 +852,11 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         if (lockedContentObject == null || adjustmentPanelObject == null || !adjustmentPanelObject.activeInHierarchy || suppressAdjustmentUiCallbacks)
             return;
 
-        localPositionOffset = new Vector3(
+        Vector3 newPositionOffset = new Vector3(
             ParseControlValue(positionXControl, localPositionOffset.x),
             ParseControlValue(positionYControl, localPositionOffset.y),
             ParseControlValue(positionZControl, localPositionOffset.z));
-        localEulerOffset = new Vector3(
+        Vector3 newEulerOffset = new Vector3(
             ParseControlValue(rotationXControl, localEulerOffset.x),
             ParseControlValue(rotationYControl, localEulerOffset.y),
             ParseControlValue(rotationZControl, localEulerOffset.z));
@@ -844,9 +864,22 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             ParseControlValue(scaleControl, GetUniformScaleValue(localScaleMultiplier)),
             scaleAdjustmentMin,
             scaleAdjustmentMax);
-        localScaleMultiplier = Vector3.one * uniformScale;
+        Vector3 newScaleMultiplier = Vector3.one * uniformScale;
 
-        ApplyLockedContentFromInspectorValues();
+        bool valuesChanged = newPositionOffset != localPositionOffset
+            || newEulerOffset != localEulerOffset
+            || newScaleMultiplier != localScaleMultiplier;
+
+        localPositionOffset = newPositionOffset;
+        localEulerOffset = newEulerOffset;
+        localScaleMultiplier = newScaleMultiplier;
+
+        // Only overwrite the AR transform when the user actually changed a value.
+        // Calling ApplyLockedContentFromInspectorValues every frame interferes with the
+        // ARAnchor subsystem: it resets localPosition/world-position each frame before AR
+        // Foundation can apply its own correction, causing the object to follow the camera.
+        if (valuesChanged)
+            ApplyLockedContentFromInspectorValues();
 
         UpdateRecommendedSpawnValues();
     }
@@ -1088,7 +1121,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             $"Object: {lockedContentObject.name}\n" +
             $"Parent: {(parentTransform != null ? parentTransform.name : "World")}\n" +
             $"Anchor: {(lockedContentAnchor != null ? "Active" : "Pending")}\n" +
-            $"Position: {FormatVector3(contentTransform.position)}\n" +
+            $"Content Pos: {FormatVector3(contentTransform.position)}\n" +
             $"Rotation: {FormatVector3(NormalizeEuler(contentTransform.eulerAngles))}\n" +
             $"Scale: {FormatVector3(contentTransform.localScale)}\n" +
             $"World Scale: {FormatVector3(contentTransform.lossyScale)}\n\n" +
@@ -1096,7 +1129,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             $"Main Camera: {(mainCamera != null ? mainCamera.name : "None")}\n" +
             $"XR Input: {GetArInputStatus()}\n" +
             $"Pose Input: {(arCameraPoseFallback != null ? arCameraPoseFallback.DebugStatus : "None")}\n" +
-            $"Camera Position: {(activeArCamera != null ? FormatVector3(activeArCamera.transform.position) : "None")}\n\n" +
+            $"Camera Pos: {(activeArCamera != null ? FormatVector3(activeArCamera.transform.position) : "None")}\n\n" +
             $"Spawn Position: {FormatVector3(localPositionOffset)}\n" +
             $"Spawn Rotation: {FormatVector3(localEulerOffset)}\n" +
             $"Spawn Scale: {GetUniformScaleValue(localScaleMultiplier):0.###}";
