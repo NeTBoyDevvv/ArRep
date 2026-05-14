@@ -61,6 +61,15 @@ MonoBehaviour:
   stablePlaneFramesRequired: 6
   placementRotationYOffset: 180
   keepPlacedObjectFacingCameraOnY: 1
+  localPositionOffset: {x: 0, y: 0, z: 0}
+  localEulerOffset: {x: 0, y: 0, z: 0}
+  localScaleMultiplier: {x: 1, y: 1, z: 1}
+  transformSettingsCsvUrl: https://docs.google.com/spreadsheets/d/1VJJhNK4Ba4dGUAPCX6cVN_Avjulif17hpeaQ4j7rgOg/edit?usp=sharing
+  transformSettingsRowKey: default
+  loadTransformSettingsOnStart: 1
+  refreshTransformSettingsPeriodically: 0
+  transformSettingsRequestTimeoutSeconds: 10
+  transformSettingsRefreshSeconds: 30
   showDetectedPlanes: 1
   hideDetectedPlanesAfterPlacement: 1
   planeFillColor: {r: 0.1, g: 0.9, b: 0.55, a: 0.22}

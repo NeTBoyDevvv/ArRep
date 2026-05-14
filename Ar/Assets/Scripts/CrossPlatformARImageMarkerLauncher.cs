@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.Networking;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.EventSystems;
@@ -51,6 +53,8 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [SerializeField] private float lockDelaySeconds = 0f;
     [SerializeField] private bool keepPlacedObjectFacingCameraOnY = false;
 
+
+
     [Header("Adjustment UI")]
     [SerializeField] private bool showAdjustmentUiAfterLock = true;
     [SerializeField] private float positionAdjustmentRange = 1f;
@@ -67,6 +71,14 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [SerializeField] private UnityEvent onArStarted;
     [SerializeField] private UnityEvent onMarkerFound;
     [SerializeField] private UnityEvent onArUnsupported;
+
+    [Header("Google Sheet Transform")]
+    [SerializeField] private string transformSettingsCsvUrl = "";
+    [SerializeField] private string transformSettingsRowKey = "";
+    [SerializeField] private bool loadTransformSettingsOnStart = true;
+    [SerializeField] private bool refreshTransformSettingsPeriodically;
+    [SerializeField, Min(1)] private int transformSettingsRequestTimeoutSeconds = 10;
+    [SerializeField, Min(5f)] private float transformSettingsRefreshSeconds = 30f;
 
     private readonly Dictionary<TrackableId, GameObject> spawnedContent = new Dictionary<TrackableId, GameObject>();
 
@@ -108,6 +120,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     private Quaternion lockedReferenceRotation = Quaternion.identity;
     private Vector3 lockedReferenceLossyScale = Vector3.one;
     private bool spawnWithoutMarkerOnStart;
+    private Coroutine transformSettingsRoutine;
 
     private void Awake()
     {
@@ -124,6 +137,9 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
         if (trackedImageManager != null)
             trackedImageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
+
+        if (loadTransformSettingsOnStart)
+            StartTransformSettingsRoutine();
     }
 
     private void OnDisable()
@@ -133,6 +149,8 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
         if (trackedImageManager != null)
             trackedImageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
+
+        StopTransformSettingsRoutine();
     }
 
     private void Update()
@@ -206,7 +224,21 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         lockedContentObject = null;
         SetAdjustmentUiVisible(false);
         ApplyPerformanceSettings();
+        if (loadTransformSettingsOnStart)
+            StartTransformSettingsRoutine();
         StartCoroutine(StartARRoutine());
+    }
+
+    public void RefreshTransformSettingsFromGoogleSheet()
+    {
+        if (string.IsNullOrWhiteSpace(transformSettingsCsvUrl))
+        {
+            Debug.LogWarning("[AR Marker] Transform settings CSV URL is empty.", this);
+            return;
+        }
+
+        StopTransformSettingsRoutine();
+        transformSettingsRoutine = StartCoroutine(TransformSettingsRoutine(oneShot: true));
     }
 
     public void StopAR()
@@ -290,6 +322,497 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
         if (spawnWithoutMarkerOnStart)
             SpawnContentWithoutMarker();
+    }
+
+    private void StartTransformSettingsRoutine()
+    {
+        if (transformSettingsRoutine != null || string.IsNullOrWhiteSpace(transformSettingsCsvUrl))
+            return;
+
+        transformSettingsRoutine = StartCoroutine(TransformSettingsRoutine(oneShot: false));
+    }
+
+    private void StopTransformSettingsRoutine()
+    {
+        if (transformSettingsRoutine == null)
+            return;
+
+        StopCoroutine(transformSettingsRoutine);
+        transformSettingsRoutine = null;
+    }
+
+    private IEnumerator TransformSettingsRoutine(bool oneShot)
+    {
+        do
+        {
+            yield return LoadTransformSettingsFromGoogleSheet();
+
+            if (oneShot || !refreshTransformSettingsPeriodically)
+                break;
+
+            yield return new WaitForSecondsRealtime(Mathf.Max(5f, transformSettingsRefreshSeconds));
+        }
+        while (isActiveAndEnabled);
+
+        transformSettingsRoutine = null;
+    }
+
+    private IEnumerator LoadTransformSettingsFromGoogleSheet()
+    {
+        string url = BuildGoogleSheetCsvUrl(transformSettingsCsvUrl);
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.timeout = Mathf.Max(1, transformSettingsRequestTimeoutSeconds);
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning($"[AR Marker] Could not load transform settings from Google Sheet. {request.error}", this);
+                yield break;
+            }
+
+            if (TryApplyTransformSettingsCsv(request.downloadHandler.text, out string resultMessage))
+                Debug.Log($"[AR Marker] Transform settings loaded from Google Sheet. {resultMessage}", this);
+            else
+                Debug.LogWarning($"[AR Marker] Google Sheet transform settings were not applied. {resultMessage}", this);
+        }
+    }
+
+    private bool TryApplyTransformSettingsCsv(string csvText, out string resultMessage)
+    {
+        resultMessage = "";
+
+        List<List<string>> rows = ParseDelimitedText(csvText);
+        if (rows.Count < 2)
+        {
+            resultMessage = "The CSV must contain a header row and at least one data row.";
+            return false;
+        }
+
+        Dictionary<string, int> headerMap = BuildHeaderMap(rows[0]);
+        if (headerMap.Count == 0)
+        {
+            resultMessage = "No usable headers found.";
+            return false;
+        }
+
+        int selectedRowIndex = FindTransformSettingsRow(rows, headerMap, transformSettingsRowKey);
+        if (selectedRowIndex < 0)
+        {
+            resultMessage = string.IsNullOrWhiteSpace(transformSettingsRowKey)
+                ? "No row with transform values was found."
+                : $"No row matched key '{transformSettingsRowKey}'.";
+            return false;
+        }
+
+        if (!TryReadTransformValues(rows[selectedRowIndex], headerMap, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        {
+            resultMessage = $"Row {selectedRowIndex + 1} does not contain transform columns.";
+            return false;
+        }
+
+        bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
+        localPositionOffset = position;
+        localEulerOffset = rotation;
+        localScaleMultiplier = scale;
+
+        if (changed)
+            ApplyRuntimeTransformSettings();
+
+        resultMessage = $"Row {selectedRowIndex + 1}: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
+        return true;
+    }
+
+    private void ApplyRuntimeTransformSettings()
+    {
+        if (lockedContentObject != null)
+        {
+            ApplyLockedContentFromInspectorValues();
+            SyncAdjustmentUiFromContent(lockedContentObject);
+            return;
+        }
+
+        foreach (GameObject content in spawnedContent.Values)
+        {
+            if (content == null)
+                continue;
+
+            content.transform.localPosition = localPositionOffset;
+            content.transform.localRotation = Quaternion.Euler(localEulerOffset);
+            ApplyContentScale(content.transform, content.transform.parent);
+        }
+    }
+
+    private int FindTransformSettingsRow(List<List<string>> rows, Dictionary<string, int> headerMap, string rowKey)
+    {
+        string effectiveRowKey = !string.IsNullOrWhiteSpace(rowKey) ? rowKey : trackedImageNameFilter;
+        if (!string.IsNullOrWhiteSpace(effectiveRowKey))
+        {
+            for (int i = 1; i < rows.Count; i++)
+            {
+                if (RowMatchesKey(rows[i], headerMap, effectiveRowKey))
+                    return i;
+            }
+
+            if (!string.IsNullOrWhiteSpace(rowKey))
+                return -1;
+        }
+
+        for (int i = 1; i < rows.Count; i++)
+        {
+            if (TryReadTransformValues(rows[i], headerMap, out _, out _, out _))
+                return i;
+        }
+
+        return -1;
+    }
+
+    private bool TryReadTransformValues(
+        List<string> row,
+        Dictionary<string, int> headerMap,
+        out Vector3 position,
+        out Vector3 rotation,
+        out Vector3 scale)
+    {
+        bool hasAnyValue = false;
+        position = localPositionOffset;
+        rotation = localEulerOffset;
+        scale = localScaleMultiplier;
+
+        if (TryReadVector3(row, headerMap, position, false, out Vector3 parsedPosition,
+                new[] { "position", "localPosition", "positionOffset", "localPositionOffset", "spawnPosition", "spawnPositionOffset" },
+                new[] { "posX", "positionX", "localPositionX", "offsetX", "spawnPositionX", "x" },
+                new[] { "posY", "positionY", "localPositionY", "offsetY", "spawnPositionY", "y" },
+                new[] { "posZ", "positionZ", "localPositionZ", "offsetZ", "spawnPositionZ", "z" }))
+        {
+            position = parsedPosition;
+            hasAnyValue = true;
+        }
+
+        if (TryReadVector3(row, headerMap, rotation, false, out Vector3 parsedRotation,
+                new[] { "rotation", "localRotation", "euler", "localEuler", "localEulerOffset", "spawnRotation" },
+                new[] { "rotX", "rotationX", "eulerX", "localEulerX", "rx", "spawnRotationX" },
+                new[] { "rotY", "rotationY", "eulerY", "localEulerY", "ry", "spawnRotationY" },
+                new[] { "rotZ", "rotationZ", "eulerZ", "localEulerZ", "rz", "spawnRotationZ" }))
+        {
+            rotation = parsedRotation;
+            hasAnyValue = true;
+        }
+
+        if (TryReadVector3(row, headerMap, scale, true, out Vector3 parsedScale,
+                new[] { "scale", "localScale", "scaleMultiplier", "localScaleMultiplier", "spawnScale" },
+                new[] { "scaleX", "localScaleX", "scaleMultiplierX", "sx" },
+                new[] { "scaleY", "localScaleY", "scaleMultiplierY", "sy" },
+                new[] { "scaleZ", "localScaleZ", "scaleMultiplierZ", "sz" }))
+        {
+            scale = parsedScale;
+            hasAnyValue = true;
+        }
+
+        return hasAnyValue;
+    }
+
+    private static bool TryReadVector3(
+        List<string> row,
+        Dictionary<string, int> headerMap,
+        Vector3 fallback,
+        bool allowUniformSingleValue,
+        out Vector3 value,
+        string[] vectorAliases,
+        string[] xAliases,
+        string[] yAliases,
+        string[] zAliases)
+    {
+        value = fallback;
+
+        foreach (string alias in vectorAliases)
+        {
+            if (TryGetRawField(row, headerMap, alias, out string rawValue) &&
+                TryParseVector3(rawValue, allowUniformSingleValue, out Vector3 parsedVector))
+            {
+                value = parsedVector;
+                return true;
+            }
+        }
+
+        bool hasAnyComponent = false;
+        if (TryReadFloat(row, headerMap, xAliases, out float x))
+        {
+            value.x = x;
+            hasAnyComponent = true;
+        }
+
+        if (TryReadFloat(row, headerMap, yAliases, out float y))
+        {
+            value.y = y;
+            hasAnyComponent = true;
+        }
+
+        if (TryReadFloat(row, headerMap, zAliases, out float z))
+        {
+            value.z = z;
+            hasAnyComponent = true;
+        }
+
+        return hasAnyComponent;
+    }
+
+    private static bool RowMatchesKey(List<string> row, Dictionary<string, int> headerMap, string rowKey)
+    {
+        string[] keyAliases =
+        {
+            "key", "id", "name", "marker", "markerName", "trackedImage", "trackedImageName",
+            "image", "imageName", "object", "objectName", "prefab", "prefabName"
+        };
+
+        foreach (string alias in keyAliases)
+        {
+            if (TryGetRawField(row, headerMap, alias, out string rawValue) && ValuesMatch(rawValue, rowKey))
+                return true;
+        }
+
+        return row.Count > 0 && ValuesMatch(row[0], rowKey);
+    }
+
+    private static bool TryReadFloat(List<string> row, Dictionary<string, int> headerMap, string[] aliases, out float value)
+    {
+        foreach (string alias in aliases)
+        {
+            if (TryGetRawField(row, headerMap, alias, out string rawValue) && TryParseFloat(rawValue, out value))
+                return true;
+        }
+
+        value = 0f;
+        return false;
+    }
+
+    private static bool TryGetRawField(List<string> row, Dictionary<string, int> headerMap, string alias, out string value)
+    {
+        value = "";
+        if (!headerMap.TryGetValue(NormalizeHeader(alias), out int index))
+            return false;
+
+        if (index < 0 || index >= row.Count)
+            return false;
+
+        value = row[index].Trim();
+        return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryParseVector3(string rawValue, bool allowUniformSingleValue, out Vector3 value)
+    {
+        value = Vector3.zero;
+        string normalized = rawValue
+            .Replace(';', ' ')
+            .Replace('|', ' ')
+            .Replace(',', ' ');
+        string[] parts = normalized.Split(new[] { ' ', '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length == 1 && allowUniformSingleValue && TryParseFloat(parts[0], out float uniformValue))
+        {
+            value = Vector3.one * uniformValue;
+            return true;
+        }
+
+        if (parts.Length < 3)
+            return false;
+
+        if (!TryParseFloat(parts[0], out float x) ||
+            !TryParseFloat(parts[1], out float y) ||
+            !TryParseFloat(parts[2], out float z))
+        {
+            return false;
+        }
+
+        value = new Vector3(x, y, z);
+        return true;
+    }
+
+    private static bool TryParseFloat(string rawValue, out float value)
+    {
+        return float.TryParse(
+            rawValue.Trim().Replace(',', '.'),
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            out value);
+    }
+
+    private static bool ValuesMatch(string value, string expected)
+    {
+        string trimmedValue = value.Trim();
+        string trimmedExpected = expected.Trim();
+        return string.Equals(trimmedValue, trimmedExpected, System.StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(NormalizeHeader(trimmedValue), NormalizeHeader(trimmedExpected), System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static Dictionary<string, int> BuildHeaderMap(List<string> headerRow)
+    {
+        Dictionary<string, int> headerMap = new Dictionary<string, int>();
+        for (int i = 0; i < headerRow.Count; i++)
+        {
+            string normalizedHeader = NormalizeHeader(headerRow[i]);
+            if (!string.IsNullOrEmpty(normalizedHeader) && !headerMap.ContainsKey(normalizedHeader))
+                headerMap.Add(normalizedHeader, i);
+        }
+
+        return headerMap;
+    }
+
+    private static string NormalizeHeader(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "";
+
+        StringBuilder builder = new StringBuilder(value.Length);
+        for (int i = 0; i < value.Length; i++)
+        {
+            char c = char.ToLowerInvariant(value[i]);
+            if (char.IsLetterOrDigit(c))
+                builder.Append(c);
+        }
+
+        return builder.ToString();
+    }
+
+    private static string BuildGoogleSheetCsvUrl(string url)
+    {
+        string trimmedUrl = url.Trim();
+        if (trimmedUrl.IndexOf("docs.google.com/spreadsheets", System.StringComparison.OrdinalIgnoreCase) < 0)
+            return trimmedUrl;
+
+        if (trimmedUrl.IndexOf("output=csv", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+            trimmedUrl.IndexOf("format=csv", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return trimmedUrl;
+        }
+
+        int publishedHtmlIndex = trimmedUrl.IndexOf("/pubhtml", System.StringComparison.OrdinalIgnoreCase);
+        if (publishedHtmlIndex >= 0)
+        {
+            string baseUrl = trimmedUrl.Substring(0, publishedHtmlIndex);
+            string gid = ExtractGoogleSheetGid(trimmedUrl);
+            return $"{baseUrl}/pub?output=csv&gid={gid}";
+        }
+
+        int editIndex = trimmedUrl.IndexOf("/edit", System.StringComparison.OrdinalIgnoreCase);
+        if (editIndex < 0)
+            return trimmedUrl;
+
+        string exportBaseUrl = trimmedUrl.Substring(0, editIndex);
+        string exportGid = ExtractGoogleSheetGid(trimmedUrl);
+        return $"{exportBaseUrl}/export?format=csv&gid={exportGid}";
+    }
+
+    private static string ExtractGoogleSheetGid(string url)
+    {
+        int gidIndex = url.IndexOf("gid=", System.StringComparison.OrdinalIgnoreCase);
+        if (gidIndex < 0)
+            return "0";
+
+        gidIndex += 4;
+        StringBuilder builder = new StringBuilder();
+        while (gidIndex < url.Length && char.IsDigit(url[gidIndex]))
+        {
+            builder.Append(url[gidIndex]);
+            gidIndex++;
+        }
+
+        return builder.Length > 0 ? builder.ToString() : "0";
+    }
+
+    private static List<List<string>> ParseDelimitedText(string text)
+    {
+        List<List<string>> rows = new List<List<string>>();
+        if (string.IsNullOrEmpty(text))
+            return rows;
+
+        char delimiter = DetectDelimiter(text);
+        List<string> row = new List<string>();
+        StringBuilder field = new StringBuilder();
+        bool inQuotes = false;
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            if (c == '"')
+            {
+                if (inQuotes && i + 1 < text.Length && text[i + 1] == '"')
+                {
+                    field.Append('"');
+                    i++;
+                }
+                else
+                {
+                    inQuotes = !inQuotes;
+                }
+            }
+            else if (c == delimiter && !inQuotes)
+            {
+                row.Add(field.ToString());
+                field.Length = 0;
+            }
+            else if ((c == '\n' || c == '\r') && !inQuotes)
+            {
+                if (c == '\r' && i + 1 < text.Length && text[i + 1] == '\n')
+                    i++;
+
+                AddParsedRow(rows, row, field);
+            }
+            else
+            {
+                field.Append(c);
+            }
+        }
+
+        AddParsedRow(rows, row, field);
+        return rows;
+    }
+
+    private static void AddParsedRow(List<List<string>> rows, List<string> row, StringBuilder field)
+    {
+        row.Add(field.ToString());
+        field.Length = 0;
+
+        bool hasValue = false;
+        for (int i = 0; i < row.Count; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(row[i]))
+            {
+                hasValue = true;
+                break;
+            }
+        }
+
+        if (hasValue || row.Count > 1)
+            rows.Add(new List<string>(row));
+
+        row.Clear();
+    }
+
+    private static char DetectDelimiter(string text)
+    {
+        int lineEnd = text.IndexOfAny(new[] { '\r', '\n' });
+        string firstLine = lineEnd >= 0 ? text.Substring(0, lineEnd) : text;
+        int commaCount = CountCharacter(firstLine, ',');
+        int semicolonCount = CountCharacter(firstLine, ';');
+        int tabCount = CountCharacter(firstLine, '\t');
+
+        if (tabCount > commaCount && tabCount > semicolonCount)
+            return '\t';
+
+        return semicolonCount > commaCount ? ';' : ',';
+    }
+
+    private static int CountCharacter(string value, char target)
+    {
+        int count = 0;
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (value[i] == target)
+                count++;
+        }
+
+        return count;
     }
 
 #if UNITY_ANDROID
