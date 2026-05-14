@@ -188,6 +188,9 @@
         },
         {
             "m_Id": "85c8574990274a85bf2754b96e30a2c8"
+        },
+        {
+            "m_Id": "85d667d223b34a169e885b5900b3ecd9"
         }
     ],
     "m_GroupDatas": [],
@@ -989,6 +992,9 @@
         "m_Blocks": [
             {
                 "m_Id": "2e24262f152049fc9fa9e10bd4018a60"
+            },
+            {
+                "m_Id": "85d667d223b34a169e885b5900b3ecd9"
             }
         ]
     },
@@ -3747,9 +3753,9 @@
     "m_PerRendererData": false,
     "m_customAttributes": [],
     "m_Value": {
-        "r": 0.0871373787522316,
-        "g": 1.8076823949813843,
-        "b": 2.6390161514282228,
+        "r": 0.09892718493938446,
+        "g": 2.0522639751434328,
+        "b": 2.9960782527923586,
         "a": 1.0
     },
     "isMainColor": false,
@@ -4212,6 +4218,40 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.BlockNode",
+    "m_ObjectId": "85d667d223b34a169e885b5900b3ecd9",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "SurfaceDescription.Alpha",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 0.0,
+            "height": 0.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "8f471b44ddf3496e9243529beff0c2a6"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_SerializedDescriptor": "SurfaceDescription.Alpha"
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "863804c9fc9b480f876bf799794f7e77",
     "m_Id": 4,
@@ -4450,6 +4490,21 @@
         "z": 0.0,
         "w": 0.0
     }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "8f471b44ddf3496e9243529beff0c2a6",
+    "m_Id": 0,
+    "m_DisplayName": "Alpha",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Alpha",
+    "m_StageCapability": 2,
+    "m_Value": 1.0,
+    "m_DefaultValue": 1.0,
+    "m_Labels": []
 }
 
 {
@@ -5805,7 +5860,7 @@
         "m_Id": "a1129fc07dff403d865796f35b09d97e"
     },
     "m_AllowMaterialOverride": false,
-    "m_SurfaceType": 0,
+    "m_SurfaceType": 1,
     "m_ZTestMode": 4,
     "m_ZWriteControl": 0,
     "m_AlphaMode": 0,

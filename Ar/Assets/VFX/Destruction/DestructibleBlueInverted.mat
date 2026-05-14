@@ -50,6 +50,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 905e8305aeb0cec4fb2cb24354182b98, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -66,10 +70,13 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _Amplitude: 0
-    - _ClipY: -37.4
+    - _ClipY: -2
     - _DestructionLengthBias: -0.3
     - _Float: 0
     - _Inverted: 1
+    - _LineFactor: 0
+    - _LineRadius: 2
+    - _LineTurn: 0
     - _MaskNoiseScale: 20
     - _MinimizeIndividualTriangles: 0
     - _NoiseScale: 2.73
@@ -84,5 +91,6 @@ Material:
     m_Colors:
     - _Color: {r: 0, g: 3.110898, b: 5.992157, a: 0}
     - _DirectionalityVector: {r: 0, g: 2, b: 0, a: 1}
+    - _LineCoor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -245,6 +245,9 @@
         },
         {
             "m_Id": "13b9f519150e40a894d0ce281e17f4fb"
+        },
+        {
+            "m_Id": "45ddd4771f4843d48dc705880cf31010"
         }
     ],
     "m_GroupDatas": [
@@ -675,7 +678,7 @@
             },
             "m_InputSlot": {
                 "m_Node": {
-                    "m_Id": "a64bc9fc96cd4277884919af97079026"
+                    "m_Id": "45ddd4771f4843d48dc705880cf31010"
                 },
                 "m_SlotId": 0
             }
@@ -2715,6 +2718,66 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "45d914397a6441edac39b0092c659014",
+    "m_Id": 1,
+    "m_DisplayName": "",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.RedirectNodeData",
+    "m_ObjectId": "45ddd4771f4843d48dc705880cf31010",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Redirect Node",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": 2064.0,
+            "y": 838.0,
+            "width": 56.0,
+            "height": 24.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "e5e3c732e9b6482f8a5b463fbb493538"
+        },
+        {
+            "m_Id": "45d914397a6441edac39b0092c659014"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    }
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "4607d7bba823728ab18a5624def4d82b",
     "m_Id": 1410709685,
@@ -2803,9 +2866,9 @@
         "m_Id": "ee98828a66094f6fba3d261727542931"
     },
     "m_AllowMaterialOverride": false,
-    "m_SurfaceType": 0,
+    "m_SurfaceType": 1,
     "m_ZTestMode": 4,
-    "m_ZWriteControl": 0,
+    "m_ZWriteControl": 1,
     "m_AlphaMode": 0,
     "m_RenderFace": 2,
     "m_AlphaClip": false,
@@ -3184,7 +3247,7 @@
         "m_SerializedTexture": "",
         "m_Guid": ""
     },
-    "m_DefaultType": 0
+    "m_DefaultType": 3
 }
 
 {
@@ -4137,7 +4200,7 @@
     "m_Title": "Mask Generation",
     "m_Position": {
         "x": -1400.0,
-        "y": -240.99993896484376
+        "y": -241.0
     }
 }
 
@@ -4358,8 +4421,8 @@
     "m_ObjectId": "96b39096b2cd49a9a0114fc5e7fc25c9",
     "m_Title": "Base Color",
     "m_Position": {
-        "x": -399.00006103515627,
-        "y": 540.9999389648438
+        "x": -399.0,
+        "y": 541.0
     }
 }
 
@@ -6005,8 +6068,8 @@
     "m_ObjectId": "dd9dc315c0e54a1698c976a9fc2e2564",
     "m_Title": "Glitch Effect",
     "m_Position": {
-        "x": -281.99993896484377,
-        "y": -168.99996948242188
+        "x": -282.0,
+        "y": -169.0
     }
 }
 
@@ -6392,6 +6455,30 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "SurfaceDescription.Occlusion"
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "e5e3c732e9b6482f8a5b463fbb493538",
+    "m_Id": 0,
+    "m_DisplayName": "",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
 }
 
 {

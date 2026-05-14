@@ -2702,7 +2702,7 @@
         "m_Id": "78fdd64e50f6439881a05dd7417e6b6a"
     },
     "m_AllowMaterialOverride": false,
-    "m_SurfaceType": 0,
+    "m_SurfaceType": 1,
     "m_ZTestMode": 4,
     "m_ZWriteControl": 0,
     "m_AlphaMode": 0,
@@ -4086,8 +4086,8 @@
     "m_ObjectId": "96b39096b2cd49a9a0114fc5e7fc25c9",
     "m_Title": "Base Color",
     "m_Position": {
-        "x": -398.99993896484377,
-        "y": 597.9998779296875
+        "x": -399.0,
+        "y": 598.0
     }
 }
 
