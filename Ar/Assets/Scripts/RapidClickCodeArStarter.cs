@@ -13,7 +13,6 @@ public class RapidClickCodeArStarter : MonoBehaviour
     [SerializeField] private CanvasGroup codeCanvasGroup;
     [SerializeField] private TMP_InputField codeInputField;
     [SerializeField] private Button confirmButton;
-    [SerializeField] private string correctCode = "1419";
     [SerializeField] private bool hidePanelOnAwake = true;
     [SerializeField] private bool hidePanelAfterSuccess = true;
 
@@ -69,17 +68,6 @@ public class RapidClickCodeArStarter : MonoBehaviour
     public void ConfirmCode()
     {
         string typedCode = codeInputField != null ? codeInputField.text.Trim() : string.Empty;
-        if (typedCode != correctCode)
-        {
-            if (codeInputField != null)
-                codeInputField.text = string.Empty;
-
-            Debug.LogWarning("[AR Code Starter] Wrong code entered.");
-            return;
-        }
-
-        if (hidePanelAfterSuccess)
-            SetCodePanelVisible(false);
 
         if (arLauncher == null)
             arLauncher = FindFirstObjectByType<CrossPlatformARImageMarkerLauncher>();
@@ -90,7 +78,19 @@ public class RapidClickCodeArStarter : MonoBehaviour
             return;
         }
 
-        arLauncher.StartARAndSpawnWithoutMarker();
+        bool success = arLauncher.StartARWithCode(typedCode);
+
+        if (!success)
+        {
+            if (codeInputField != null)
+                codeInputField.text = string.Empty;
+
+            Debug.LogWarning("[AR Code Starter] Wrong code entered.");
+            return;
+        }
+
+        if (hidePanelAfterSuccess)
+            SetCodePanelVisible(false);
     }
 
     public void HideCanvasGroup()

@@ -19,7 +19,7 @@ public class NetworkCountdownTimer : MonoBehaviour
     [SerializeField] private string expiredText = "00:00:00";
 
     [Header("Target Time")]
-    [SerializeField] private string targetMoscowTimeIso = "2026-05-18T19:00:00+03:00";
+    [SerializeField] private string targetMoscowTimeIso = "2026-05-18T19:30:00+03:00";
 
     [Header("Sync")]
     [SerializeField] [Min(1)] private int requestTimeoutSeconds = 10;

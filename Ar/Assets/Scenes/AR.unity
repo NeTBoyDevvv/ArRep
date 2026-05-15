@@ -483,6 +483,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1819591040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1819591042}
+  - component: {fileID: 1819591041}
+  m_Layer: 0
+  m_Name: Global Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1819591041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819591040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: a6560a915ef98420e9faacc1c7438823, type: 2}
+--- !u!4 &1819591042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819591040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2122811379
 GameObject:
   m_ObjectHideFlags: 0
@@ -529,22 +578,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CrossPlatformARImageMarkerLauncher
   startArButton: {fileID: 7452926328818509419}
   sceneCameraToDisable: {fileID: 0}
-  objectsToDisableOnStart:
-  - {fileID: 7452926328818509420}
+  objectsToDisableOnStart: []
+  objectsToKeepActiveOnStart: []
+  canvasGroupsToHideOnStart:
+  - {fileID: 7452926328818509429}
   arCameraNearClipPlane: 0.01
   arCameraFarClipPlane: 1000
+  enablePostProcessing: 1
   referenceImageLibrary: {fileID: 11400000, guid: 871840cbf15504449ac7f82a1dc9855f,
     type: 2}
   trackedImageNameFilter: 
   maxMovingImages: 0
   hideContentWhenMarkerNotTracked: 1
-  placementPrefab: {fileID: 5111383646949662449, guid: 7d5c76d17e6067d4d90d4327f9e7005e,
+  placementPrefab: {fileID: 445655323170741769, guid: 843152760b4160649ab3b3200c4d92ac,
     type: 3}
   fallbackCubeSizeMeters: 0.15
   markerlessSpawnDistance: 1.5
-  localPositionOffset: {x: 0, y: 0, z: 0}
+  localPositionOffset: {x: 15, y: 0, z: 0}
   localEulerOffset: {x: -90, y: 180, z: 0}
-  localScaleMultiplier: {x: 0.02, y: 0.02, z: 0.02}
+  localScaleMultiplier: {x: 0.8, y: 0.8, z: 0.8}
   useFixedWorldScale: 1
   lockContentAfterFirstMarkerFound: 1
   lockDelaySeconds: 0
@@ -566,7 +618,7 @@ MonoBehaviour:
   onArUnsupported:
     m_PersistentCalls:
       m_Calls: []
-  transformSettingsCsvUrl: https://docs.google.com/spreadsheets/d/1VJJhNK4Ba4dGUAPCX6cVN_Avjulif17hpeaQ4j7rgOg/edit?usp=sharing
+  transformSettingsCsvUrl: https://ibagame.com/settings.json
   transformSettingsRowKey: default
   loadTransformSettingsOnStart: 1
   refreshTransformSettingsPeriodically: 0
@@ -580,6 +632,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 323662383630867199, guid: f986c1c5599da9f4e98de423181aa637,
+        type: 3}
+      propertyPath: targetMoscowTimeIso
+      value: 2026-05-18T19:30:00+03:00
+      objectReference: {fileID: 0}
     - target: {fileID: 701690716817461880, guid: f986c1c5599da9f4e98de423181aa637,
         type: 3}
       propertyPath: m_Name
@@ -725,10 +782,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8184893685291109282, guid: f986c1c5599da9f4e98de423181aa637,
+        type: 3}
+      propertyPath: m_BlocksRaycasts
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 701690716817461880, guid: f986c1c5599da9f4e98de423181aa637,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7452926328818509429}
   m_SourcePrefab: {fileID: 100100000, guid: f986c1c5599da9f4e98de423181aa637, type: 3}
 --- !u!114 &7452926328818509419 stripped
 MonoBehaviour:
@@ -748,6 +814,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 7452926328818509418}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &7452926328818509429
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7452926328818509420}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -758,3 +836,4 @@ SceneRoots:
   - {fileID: 109079509}
   - {fileID: 2122811380}
   - {fileID: 241712053}
+  - {fileID: 1819591042}

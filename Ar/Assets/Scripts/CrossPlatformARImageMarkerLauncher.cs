@@ -21,6 +21,51 @@ using UnityEngine.Android;
 
 public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 {
+    [System.Serializable]
+    private class JsonTransformSettingsRow
+    {
+        public string key;
+        public string id;
+        public string name;
+        public string marker;
+        public string markerName;
+        public string trackedImage;
+        public string trackedImageName;
+        public string image;
+        public string imageName;
+        public string objectName;
+        public string prefabName;
+
+        public float[] position;
+        public float[] localPosition;
+        public float[] positionOffset;
+        public float[] localPositionOffset;
+        public float[] spawnPosition;
+        public float[] spawnPositionOffset;
+
+        public float[] rotation;
+        public float[] localRotation;
+        public float[] euler;
+        public float[] localEuler;
+        public float[] localEulerOffset;
+        public float[] spawnRotation;
+
+        public float[] scale;
+        public float[] localScale;
+        public float[] scaleMultiplier;
+        public float[] localScaleMultiplier;
+        public float[] spawnScale;
+    }
+
+    [System.Serializable]
+    private sealed class JsonTransformSettingsDocument : JsonTransformSettingsRow
+    {
+        public JsonTransformSettingsRow[] rows;
+        public JsonTransformSettingsRow[] items;
+        public JsonTransformSettingsRow[] transforms;
+        public JsonTransformSettingsRow[] settings;
+    }
+
     private sealed class RuntimeValueControl
     {
         public InputField InputField;
@@ -30,10 +75,13 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [SerializeField] private Button startArButton;
     [SerializeField] private Camera sceneCameraToDisable;
     [SerializeField] private GameObject[] objectsToDisableOnStart;
+    [SerializeField] private GameObject[] objectsToKeepActiveOnStart;
+    [SerializeField] private CanvasGroup[] canvasGroupsToHideOnStart;
 
     [Header("AR Camera")]
     [SerializeField] private float arCameraNearClipPlane = 0.01f;
     [SerializeField] private float arCameraFarClipPlane = 100f;
+    [SerializeField] private bool enablePostProcessing = false;
 
     [Header("Marker Tracking")]
     [SerializeField] private XRReferenceImageLibrary referenceImageLibrary;
@@ -72,13 +120,14 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [SerializeField] private UnityEvent onMarkerFound;
     [SerializeField] private UnityEvent onArUnsupported;
 
-    [Header("Google Sheet Transform")]
-    [SerializeField] private string transformSettingsCsvUrl = "";
+    [Header("Web Transform Settings")]
+    [SerializeField, InspectorName("Transform Settings Url")] private string transformSettingsCsvUrl = "";
     [SerializeField] private string transformSettingsRowKey = "";
     [SerializeField] private bool loadTransformSettingsOnStart = true;
     [SerializeField] private bool refreshTransformSettingsPeriodically;
     [SerializeField, Min(1)] private int transformSettingsRequestTimeoutSeconds = 10;
     [SerializeField, Min(5f)] private float transformSettingsRefreshSeconds = 30f;
+
 
     private readonly Dictionary<TrackableId, GameObject> spawnedContent = new Dictionary<TrackableId, GameObject>();
 
@@ -121,6 +170,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     private Vector3 lockedReferenceLossyScale = Vector3.one;
     private bool spawnWithoutMarkerOnStart;
     private Coroutine transformSettingsRoutine;
+    private bool timerBypassed;
 
     private void Awake()
     {
@@ -192,6 +242,40 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         StartARInternal(false);
     }
 
+    public bool StartARWithCode(string code)
+    {
+        if (code == "1419")
+        {
+            StartARAndSpawnWithoutMarker();
+            ForceTimerCompletion();
+            return true;
+        }
+
+        if (code == "0000")
+        {
+            StartAR();
+            ForceTimerCompletion();
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsTimerBypassed => timerBypassed;
+
+    private void ForceTimerCompletion()
+    {
+        timerBypassed = true;
+
+        CountdownTimerMaterialTimeLeftBridge[] bridges = FindObjectsByType<CountdownTimerMaterialTimeLeftBridge>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        Debug.Log($"[AR Code] ForceTimerCompletion: found {bridges.Length} bridge(s).");
+
+        foreach (CountdownTimerMaterialTimeLeftBridge bridge in bridges)
+            bridge.ForceComplete();
+    }
+
     public void StartARAndSpawnWithoutMarker()
     {
         if (arStartRequested)
@@ -231,9 +315,14 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     public void RefreshTransformSettingsFromGoogleSheet()
     {
+        RefreshTransformSettingsFromWeb();
+    }
+
+    public void RefreshTransformSettingsFromWeb()
+    {
         if (string.IsNullOrWhiteSpace(transformSettingsCsvUrl))
         {
-            Debug.LogWarning("[AR Marker] Transform settings CSV URL is empty.", this);
+            Debug.LogWarning("[AR Marker] Transform settings URL is empty.", this);
             return;
         }
 
@@ -345,7 +434,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     {
         do
         {
-            yield return LoadTransformSettingsFromGoogleSheet();
+            yield return LoadTransformSettingsFromWeb();
 
             if (oneShot || !refreshTransformSettingsPeriodically)
                 break;
@@ -357,9 +446,9 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         transformSettingsRoutine = null;
     }
 
-    private IEnumerator LoadTransformSettingsFromGoogleSheet()
+    private IEnumerator LoadTransformSettingsFromWeb()
     {
-        string url = BuildGoogleSheetCsvUrl(transformSettingsCsvUrl);
+        string url = BuildTransformSettingsUrl(transformSettingsCsvUrl);
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
             request.timeout = Mathf.Max(1, transformSettingsRequestTimeoutSeconds);
@@ -367,15 +456,75 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning($"[AR Marker] Could not load transform settings from Google Sheet. {request.error}", this);
+                Debug.LogWarning($"[AR Marker] Could not load transform settings from web. {request.error}", this);
                 yield break;
             }
 
-            if (TryApplyTransformSettingsCsv(request.downloadHandler.text, out string resultMessage))
-                Debug.Log($"[AR Marker] Transform settings loaded from Google Sheet. {resultMessage}", this);
+            if (TryApplyTransformSettingsPayload(request.downloadHandler.text, out string resultMessage))
+                Debug.Log($"[AR Marker] Transform settings loaded from web. {resultMessage}", this);
             else
-                Debug.LogWarning($"[AR Marker] Google Sheet transform settings were not applied. {resultMessage}", this);
+                Debug.LogWarning($"[AR Marker] Web transform settings were not applied. {resultMessage}", this);
         }
+    }
+
+    private bool TryApplyTransformSettingsPayload(string text, out string resultMessage)
+    {
+        string trimmedText = text.TrimStart();
+        if (trimmedText.StartsWith("{") || trimmedText.StartsWith("["))
+            return TryApplyTransformSettingsJson(text, out resultMessage);
+
+        return TryApplyTransformSettingsCsv(text, out resultMessage);
+    }
+
+    private bool TryApplyTransformSettingsJson(string jsonText, out string resultMessage)
+    {
+        resultMessage = "";
+        string trimmedJson = jsonText.Trim();
+        if (trimmedJson.StartsWith("["))
+            trimmedJson = "{\"rows\":" + trimmedJson + "}";
+
+        JsonTransformSettingsDocument document;
+        try
+        {
+            document = JsonUtility.FromJson<JsonTransformSettingsDocument>(trimmedJson);
+        }
+        catch (System.Exception exception)
+        {
+            resultMessage = $"JSON parse error: {exception.Message}";
+            return false;
+        }
+
+        if (document == null)
+        {
+            resultMessage = "JSON response is empty or invalid.";
+            return false;
+        }
+
+        JsonTransformSettingsRow row = FindTransformSettingsRow(document, transformSettingsRowKey);
+        if (row == null)
+        {
+            resultMessage = string.IsNullOrWhiteSpace(transformSettingsRowKey)
+                ? "No JSON row with transform values was found."
+                : $"No JSON row matched key '{transformSettingsRowKey}'.";
+            return false;
+        }
+
+        if (!TryReadTransformValues(row, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        {
+            resultMessage = "Selected JSON row does not contain transform values.";
+            return false;
+        }
+
+        bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
+        localPositionOffset = position;
+        localEulerOffset = rotation;
+        localScaleMultiplier = scale;
+
+        if (changed)
+            ApplyRuntimeTransformSettings();
+
+        resultMessage = $"JSON: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
+        return true;
     }
 
     private bool TryApplyTransformSettingsCsv(string csvText, out string resultMessage)
@@ -421,6 +570,122 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
         resultMessage = $"Row {selectedRowIndex + 1}: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
         return true;
+    }
+
+    private JsonTransformSettingsRow FindTransformSettingsRow(JsonTransformSettingsDocument document, string rowKey)
+    {
+        JsonTransformSettingsRow[] rows = document.rows ?? document.items ?? document.transforms ?? document.settings;
+        string effectiveRowKey = !string.IsNullOrWhiteSpace(rowKey) ? rowKey : trackedImageNameFilter;
+        if (rows != null && rows.Length > 0)
+        {
+            if (!string.IsNullOrWhiteSpace(effectiveRowKey))
+            {
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    if (JsonRowMatchesKey(rows[i], effectiveRowKey))
+                        return rows[i];
+                }
+
+                if (!string.IsNullOrWhiteSpace(rowKey))
+                    return null;
+            }
+
+            for (int i = 0; i < rows.Length; i++)
+            {
+                if (TryReadTransformValues(rows[i], out _, out _, out _))
+                    return rows[i];
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(effectiveRowKey) && !JsonRowMatchesKey(document, effectiveRowKey))
+            return null;
+
+        return TryReadTransformValues(document, out _, out _, out _) ? document : null;
+    }
+
+    private bool TryReadTransformValues(
+        JsonTransformSettingsRow row,
+        out Vector3 position,
+        out Vector3 rotation,
+        out Vector3 scale)
+    {
+        bool hasAnyValue = false;
+        position = localPositionOffset;
+        rotation = localEulerOffset;
+        scale = localScaleMultiplier;
+        if (row == null)
+            return false;
+
+        if (TryReadVector3(GetFirstVector(row.position, row.localPosition, row.positionOffset, row.localPositionOffset, row.spawnPosition, row.spawnPositionOffset),
+                position, false, out Vector3 parsedPosition))
+        {
+            position = parsedPosition;
+            hasAnyValue = true;
+        }
+
+        if (TryReadVector3(GetFirstVector(row.rotation, row.localRotation, row.euler, row.localEuler, row.localEulerOffset, row.spawnRotation),
+                rotation, false, out Vector3 parsedRotation))
+        {
+            rotation = parsedRotation;
+            hasAnyValue = true;
+        }
+
+        if (TryReadVector3(GetFirstVector(row.scale, row.localScale, row.scaleMultiplier, row.localScaleMultiplier, row.spawnScale),
+                scale, true, out Vector3 parsedScale))
+        {
+            scale = parsedScale;
+            hasAnyValue = true;
+        }
+
+        return hasAnyValue;
+    }
+
+    private static float[] GetFirstVector(params float[][] values)
+    {
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (values[i] != null && values[i].Length > 0)
+                return values[i];
+        }
+
+        return null;
+    }
+
+    private static bool TryReadVector3(float[] values, Vector3 fallback, bool allowUniformSingleValue, out Vector3 value)
+    {
+        value = fallback;
+        if (values == null || values.Length == 0)
+            return false;
+
+        if (values.Length == 1 && allowUniformSingleValue)
+        {
+            value = Vector3.one * values[0];
+            return true;
+        }
+
+        if (values.Length < 3)
+            return false;
+
+        value = new Vector3(values[0], values[1], values[2]);
+        return true;
+    }
+
+    private static bool JsonRowMatchesKey(JsonTransformSettingsRow row, string rowKey)
+    {
+        if (row == null)
+            return false;
+
+        return ValuesMatch(row.key, rowKey) ||
+               ValuesMatch(row.id, rowKey) ||
+               ValuesMatch(row.name, rowKey) ||
+               ValuesMatch(row.marker, rowKey) ||
+               ValuesMatch(row.markerName, rowKey) ||
+               ValuesMatch(row.trackedImage, rowKey) ||
+               ValuesMatch(row.trackedImageName, rowKey) ||
+               ValuesMatch(row.image, rowKey) ||
+               ValuesMatch(row.imageName, rowKey) ||
+               ValuesMatch(row.objectName, rowKey) ||
+               ValuesMatch(row.prefabName, rowKey);
     }
 
     private void ApplyRuntimeTransformSettings()
@@ -639,6 +904,9 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     private static bool ValuesMatch(string value, string expected)
     {
+        if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expected))
+            return false;
+
         string trimmedValue = value.Trim();
         string trimmedExpected = expected.Trim();
         return string.Equals(trimmedValue, trimmedExpected, System.StringComparison.OrdinalIgnoreCase) ||
@@ -674,7 +942,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         return builder.ToString();
     }
 
-    private static string BuildGoogleSheetCsvUrl(string url)
+    private static string BuildTransformSettingsUrl(string url)
     {
         string trimmedUrl = url.Trim();
         if (trimmedUrl.IndexOf("docs.google.com/spreadsheets", System.StringComparison.OrdinalIgnoreCase) < 0)
@@ -864,7 +1132,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         UniversalAdditionalCameraData urpData = arCameraObject.GetComponent<UniversalAdditionalCameraData>();
         if (urpData == null)
             urpData = arCameraObject.AddComponent<UniversalAdditionalCameraData>();
-        urpData.renderPostProcessing = false;
+        urpData.renderPostProcessing = enablePostProcessing;
 
         arCameraObject.AddComponent<AudioListener>();
         arCameraManager = arCameraObject.AddComponent<ARCameraManager>();
@@ -1172,9 +1440,8 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
         SyncAdjustmentUiFromContent(content);
         SetAdjustmentUiVisible(showAdjustmentUiAfterLock);
-        CreateLockedContentAnchorAsync(content, new Pose(lockedReferencePosition, lockedReferenceRotation));
 
-        Debug.Log("[AR Marker] Content spawned without marker after code launch.", content);
+        Debug.Log("[AR Marker] Content spawned without marker — world space, no anchor.", content);
     }
 
     private void TryLockContentToWorld(TrackableId trackableId, GameObject content)
@@ -1389,9 +1656,9 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             scaleAdjustmentMax);
         Vector3 newScaleMultiplier = Vector3.one * uniformScale;
 
-        bool valuesChanged = newPositionOffset != localPositionOffset
-            || newEulerOffset != localEulerOffset
-            || newScaleMultiplier != localScaleMultiplier;
+        bool valuesChanged = !Vector3ApproxEqual(newPositionOffset, localPositionOffset)
+            || !Vector3ApproxEqual(newEulerOffset, localEulerOffset)
+            || !Vector3ApproxEqual(newScaleMultiplier, localScaleMultiplier);
 
         localPositionOffset = newPositionOffset;
         localEulerOffset = newEulerOffset;
@@ -1754,13 +2021,14 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         }
 
         DisableNonArSceneCameras();
+        HideCanvasGroupsForAR();
 
         if (objectsToDisableOnStart == null)
             return;
 
         foreach (GameObject go in objectsToDisableOnStart)
         {
-            if (go != null)
+            if (go != null && !ShouldKeepActive(go))
                 go.SetActive(false);
         }
     }
@@ -1788,6 +2056,38 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         return arInputManager.subsystem.running ? "Running" : "Stopped";
     }
 
+    private void HideCanvasGroupsForAR()
+    {
+        if (canvasGroupsToHideOnStart == null)
+            return;
+
+        foreach (CanvasGroup group in canvasGroupsToHideOnStart)
+        {
+            if (group == null)
+                continue;
+
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+        }
+    }
+
+    private bool ShouldKeepActive(GameObject go)
+    {
+        if (go == null || objectsToKeepActiveOnStart == null)
+            return false;
+
+        foreach (GameObject keep in objectsToKeepActiveOnStart)
+        {
+            if (keep == null)
+                continue;
+            if (go == keep || go.transform.IsChildOf(keep.transform))
+                return true;
+        }
+
+        return false;
+    }
+
     private void DisableNonArSceneCameras()
     {
         Camera[] sceneCameras = FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
@@ -1802,10 +2102,14 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             if (xrOriginObject != null && sceneCamera.transform.IsChildOf(xrOriginObject.transform))
                 continue;
 
+            if (ShouldKeepActive(sceneCamera.gameObject))
+                continue;
+
             sceneCamera.gameObject.SetActive(false);
         }
 
-        if (sceneCameraToDisable != null && sceneCameraToDisable.gameObject != arCameraObject)
+        if (sceneCameraToDisable != null && sceneCameraToDisable.gameObject != arCameraObject
+            && !ShouldKeepActive(sceneCameraToDisable.gameObject))
             sceneCameraToDisable.gameObject.SetActive(false);
     }
 
@@ -1917,5 +2221,10 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     private static float SafeDivide(float value, float divisor)
     {
         return Mathf.Abs(divisor) < 0.0001f ? value : value / divisor;
+    }
+
+    private static bool Vector3ApproxEqual(Vector3 a, Vector3 b)
+    {
+        return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z);
     }
 }

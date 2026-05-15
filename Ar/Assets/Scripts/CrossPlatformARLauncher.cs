@@ -19,6 +19,51 @@ using UnityEngine.Android;
 
 public class CrossPlatformARLauncher : MonoBehaviour
 {
+    [System.Serializable]
+    private class JsonTransformSettingsRow
+    {
+        public string key;
+        public string id;
+        public string name;
+        public string marker;
+        public string markerName;
+        public string trackedImage;
+        public string trackedImageName;
+        public string image;
+        public string imageName;
+        public string objectName;
+        public string prefabName;
+
+        public float[] position;
+        public float[] localPosition;
+        public float[] positionOffset;
+        public float[] localPositionOffset;
+        public float[] spawnPosition;
+        public float[] spawnPositionOffset;
+
+        public float[] rotation;
+        public float[] localRotation;
+        public float[] euler;
+        public float[] localEuler;
+        public float[] localEulerOffset;
+        public float[] spawnRotation;
+
+        public float[] scale;
+        public float[] localScale;
+        public float[] scaleMultiplier;
+        public float[] localScaleMultiplier;
+        public float[] spawnScale;
+    }
+
+    [System.Serializable]
+    private sealed class JsonTransformSettingsDocument : JsonTransformSettingsRow
+    {
+        public JsonTransformSettingsRow[] rows;
+        public JsonTransformSettingsRow[] items;
+        public JsonTransformSettingsRow[] transforms;
+        public JsonTransformSettingsRow[] settings;
+    }
+
     [Header("Launch")]
     [SerializeField] private Button startArButton;
     [SerializeField] private Camera sceneCameraToDisable;
@@ -41,8 +86,8 @@ public class CrossPlatformARLauncher : MonoBehaviour
     [SerializeField] private Vector3 localEulerOffset = Vector3.zero;
     [SerializeField] private Vector3 localScaleMultiplier = Vector3.one;
 
-    [Header("Google Sheet Transform")]
-    [SerializeField] private string transformSettingsCsvUrl = "";
+    [Header("Web Transform Settings")]
+    [SerializeField, InspectorName("Transform Settings Url")] private string transformSettingsCsvUrl = "";
     [SerializeField] private string transformSettingsRowKey = "";
     [SerializeField] private bool loadTransformSettingsOnStart = true;
     [SerializeField] private bool refreshTransformSettingsPeriodically;
@@ -224,6 +269,11 @@ public class CrossPlatformARLauncher : MonoBehaviour
 
     public void RefreshTransformSettingsFromGoogleSheet()
     {
+        RefreshTransformSettingsFromWeb();
+    }
+
+    public void RefreshTransformSettingsFromWeb()
+    {
         if (!isActiveAndEnabled)
             return;
 
@@ -332,7 +382,7 @@ public class CrossPlatformARLauncher : MonoBehaviour
     {
         do
         {
-            yield return LoadTransformSettingsFromGoogleSheet();
+            yield return LoadTransformSettingsFromWeb();
 
             if (oneShot || !refreshTransformSettingsPeriodically)
                 break;
@@ -344,9 +394,9 @@ public class CrossPlatformARLauncher : MonoBehaviour
         transformSettingsRoutine = null;
     }
 
-    private IEnumerator LoadTransformSettingsFromGoogleSheet()
+    private IEnumerator LoadTransformSettingsFromWeb()
     {
-        string url = BuildGoogleSheetCsvUrl(transformSettingsCsvUrl);
+        string url = BuildTransformSettingsUrl(transformSettingsCsvUrl);
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
             request.timeout = Mathf.Max(1, transformSettingsRequestTimeoutSeconds);
@@ -354,15 +404,75 @@ public class CrossPlatformARLauncher : MonoBehaviour
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning($"[AR] Could not load transform settings from Google Sheet. {request.error}", this);
+                Debug.LogWarning($"[AR] Could not load transform settings from web. {request.error}", this);
                 yield break;
             }
 
-            if (TryApplyTransformSettingsCsv(request.downloadHandler.text, out string resultMessage))
-                Debug.Log($"[AR] Transform settings loaded from Google Sheet. {resultMessage}", this);
+            if (TryApplyTransformSettingsPayload(request.downloadHandler.text, out string resultMessage))
+                Debug.Log($"[AR] Transform settings loaded from web. {resultMessage}", this);
             else
-                Debug.LogWarning($"[AR] Google Sheet transform settings were not applied. {resultMessage}", this);
+                Debug.LogWarning($"[AR] Web transform settings were not applied. {resultMessage}", this);
         }
+    }
+
+    private bool TryApplyTransformSettingsPayload(string text, out string resultMessage)
+    {
+        string trimmedText = text.TrimStart();
+        if (trimmedText.StartsWith("{") || trimmedText.StartsWith("["))
+            return TryApplyTransformSettingsJson(text, out resultMessage);
+
+        return TryApplyTransformSettingsCsv(text, out resultMessage);
+    }
+
+    private bool TryApplyTransformSettingsJson(string jsonText, out string resultMessage)
+    {
+        resultMessage = "";
+        string trimmedJson = jsonText.Trim();
+        if (trimmedJson.StartsWith("["))
+            trimmedJson = "{\"rows\":" + trimmedJson + "}";
+
+        JsonTransformSettingsDocument document;
+        try
+        {
+            document = JsonUtility.FromJson<JsonTransformSettingsDocument>(trimmedJson);
+        }
+        catch (System.Exception exception)
+        {
+            resultMessage = $"JSON parse error: {exception.Message}";
+            return false;
+        }
+
+        if (document == null)
+        {
+            resultMessage = "JSON response is empty or invalid.";
+            return false;
+        }
+
+        JsonTransformSettingsRow row = FindTransformSettingsRow(document, transformSettingsRowKey);
+        if (row == null)
+        {
+            resultMessage = string.IsNullOrWhiteSpace(transformSettingsRowKey)
+                ? "No JSON row with transform values was found."
+                : $"No JSON row matched key '{transformSettingsRowKey}'.";
+            return false;
+        }
+
+        if (!TryReadTransformValues(row, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        {
+            resultMessage = "Selected JSON row does not contain transform values.";
+            return false;
+        }
+
+        bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
+        localPositionOffset = position;
+        localEulerOffset = rotation;
+        localScaleMultiplier = scale;
+
+        if (changed)
+            ApplyRuntimeTransformSettings();
+
+        resultMessage = $"JSON: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
+        return true;
     }
 
     private bool TryApplyTransformSettingsCsv(string csvText, out string resultMessage)
@@ -408,6 +518,120 @@ public class CrossPlatformARLauncher : MonoBehaviour
 
         resultMessage = $"Row {selectedRowIndex + 1}: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
         return true;
+    }
+
+    private JsonTransformSettingsRow FindTransformSettingsRow(JsonTransformSettingsDocument document, string rowKey)
+    {
+        JsonTransformSettingsRow[] rows = document.rows ?? document.items ?? document.transforms ?? document.settings;
+        if (rows != null && rows.Length > 0)
+        {
+            if (!string.IsNullOrWhiteSpace(rowKey))
+            {
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    if (JsonRowMatchesKey(rows[i], rowKey))
+                        return rows[i];
+                }
+
+                return null;
+            }
+
+            for (int i = 0; i < rows.Length; i++)
+            {
+                if (TryReadTransformValues(rows[i], out _, out _, out _))
+                    return rows[i];
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(rowKey) && !JsonRowMatchesKey(document, rowKey))
+            return null;
+
+        return TryReadTransformValues(document, out _, out _, out _) ? document : null;
+    }
+
+    private bool TryReadTransformValues(
+        JsonTransformSettingsRow row,
+        out Vector3 position,
+        out Vector3 rotation,
+        out Vector3 scale)
+    {
+        bool hasAnyValue = false;
+        position = localPositionOffset;
+        rotation = localEulerOffset;
+        scale = localScaleMultiplier;
+        if (row == null)
+            return false;
+
+        if (TryReadVector3(GetFirstVector(row.position, row.localPosition, row.positionOffset, row.localPositionOffset, row.spawnPosition, row.spawnPositionOffset),
+                position, false, out Vector3 parsedPosition))
+        {
+            position = parsedPosition;
+            hasAnyValue = true;
+        }
+
+        if (TryReadVector3(GetFirstVector(row.rotation, row.localRotation, row.euler, row.localEuler, row.localEulerOffset, row.spawnRotation),
+                rotation, false, out Vector3 parsedRotation))
+        {
+            rotation = parsedRotation;
+            hasAnyValue = true;
+        }
+
+        if (TryReadVector3(GetFirstVector(row.scale, row.localScale, row.scaleMultiplier, row.localScaleMultiplier, row.spawnScale),
+                scale, true, out Vector3 parsedScale))
+        {
+            scale = parsedScale;
+            hasAnyValue = true;
+        }
+
+        return hasAnyValue;
+    }
+
+    private static float[] GetFirstVector(params float[][] values)
+    {
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (values[i] != null && values[i].Length > 0)
+                return values[i];
+        }
+
+        return null;
+    }
+
+    private static bool TryReadVector3(float[] values, Vector3 fallback, bool allowUniformSingleValue, out Vector3 value)
+    {
+        value = fallback;
+        if (values == null || values.Length == 0)
+            return false;
+
+        if (values.Length == 1 && allowUniformSingleValue)
+        {
+            value = Vector3.one * values[0];
+            return true;
+        }
+
+        if (values.Length < 3)
+            return false;
+
+        value = new Vector3(values[0], values[1], values[2]);
+        return true;
+    }
+
+    private static bool JsonRowMatchesKey(JsonTransformSettingsRow row, string rowKey)
+    {
+        if (row == null)
+            return false;
+
+        return ValuesMatch(row.key, rowKey) ||
+               ValuesMatch(row.id, rowKey) ||
+               ValuesMatch(row.name, rowKey) ||
+               ValuesMatch(row.marker, rowKey) ||
+               ValuesMatch(row.markerName, rowKey) ||
+               ValuesMatch(row.trackedImage, rowKey) ||
+               ValuesMatch(row.trackedImageName, rowKey) ||
+               ValuesMatch(row.image, rowKey) ||
+               ValuesMatch(row.imageName, rowKey) ||
+               ValuesMatch(row.objectName, rowKey) ||
+               ValuesMatch(row.prefabName, rowKey);
     }
 
     private void ApplyRuntimeTransformSettings()
@@ -612,6 +836,9 @@ public class CrossPlatformARLauncher : MonoBehaviour
 
     private static bool ValuesMatch(string value, string expected)
     {
+        if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expected))
+            return false;
+
         string trimmedValue = value.Trim();
         string trimmedExpected = expected.Trim();
         return string.Equals(trimmedValue, trimmedExpected, System.StringComparison.OrdinalIgnoreCase) ||
@@ -647,7 +874,7 @@ public class CrossPlatformARLauncher : MonoBehaviour
         return builder.ToString();
     }
 
-    private static string BuildGoogleSheetCsvUrl(string url)
+    private static string BuildTransformSettingsUrl(string url)
     {
         string trimmedUrl = url.Trim();
         if (trimmedUrl.IndexOf("docs.google.com/spreadsheets", System.StringComparison.OrdinalIgnoreCase) < 0)

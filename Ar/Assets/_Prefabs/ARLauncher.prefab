@@ -64,7 +64,7 @@ MonoBehaviour:
   localPositionOffset: {x: 0, y: 0, z: 0}
   localEulerOffset: {x: 0, y: 0, z: 0}
   localScaleMultiplier: {x: 1, y: 1, z: 1}
-  transformSettingsCsvUrl: https://docs.google.com/spreadsheets/d/1VJJhNK4Ba4dGUAPCX6cVN_Avjulif17hpeaQ4j7rgOg/edit?usp=sharing
+  transformSettingsCsvUrl: http://localhost:8787/settings.json
   transformSettingsRowKey: default
   loadTransformSettingsOnStart: 1
   refreshTransformSettingsPeriodically: 0
