@@ -35,6 +35,9 @@ public class NetworkCountdownTimer : MonoBehaviour
     [SerializeField] private Vector3 localScaleMultiplier = Vector3.one;
     [SerializeField] private bool disableTimerGameObjectAfterCompletion = true;
 
+    [Header("Auto-Advance")]
+    [SerializeField] [Min(1)] private int autoAdvanceIntervalMinutes = 10;
+
     [Header("Event")]
     [SerializeField] private CountdownReachedEvent onReachedUsingInternetTime;
 
@@ -66,7 +69,10 @@ public class NetworkCountdownTimer : MonoBehaviour
         {
             Debug.LogError($"[{nameof(NetworkCountdownTimer)}] Invalid target time: {targetMoscowTimeIso}", this);
             enabled = false;
+            return;
         }
+
+        AdvanceTargetTimeIfPassed(DateTimeOffset.Now);
     }
 
     private void OnEnable()
@@ -155,12 +161,19 @@ public class NetworkCountdownTimer : MonoBehaviour
     {
         internetTimeOffset = internetUtcTime - DateTimeOffset.UtcNow;
 
-        if (!hasTrustedInternetTime)
+        bool firstSync = !hasTrustedInternetTime;
+        if (firstSync)
         {
             Debug.Log($"[{nameof(NetworkCountdownTimer)}] Internet time sync established.", this);
         }
 
         hasTrustedInternetTime = true;
+
+        if (firstSync)
+        {
+            AdvanceTargetTimeIfPassed(GetCurrentReferenceTime());
+        }
+
         UpdateTimerText();
         TryInvokeReachedEvent();
     }
@@ -280,6 +293,22 @@ public class NetworkCountdownTimer : MonoBehaviour
         return hasTrustedInternetTime
             ? $"{baseText} [NET]"
             : $"{baseText} [LOCAL]";
+    }
+
+    private void AdvanceTargetTimeIfPassed(DateTimeOffset referenceNow)
+    {
+        if (targetTime > referenceNow)
+        {
+            return;
+        }
+
+        var interval = TimeSpan.FromMinutes(autoAdvanceIntervalMinutes);
+        while (targetTime <= referenceNow)
+        {
+            targetTime += interval;
+        }
+
+        Debug.Log($"[{nameof(NetworkCountdownTimer)}] Target auto-advanced to {targetTime:yyyy-MM-dd HH:mm:ss zzz}", this);
     }
 
     private void TryInvokeReachedEvent()
