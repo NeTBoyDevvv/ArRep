@@ -269,6 +269,17 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             return true;
         }
 
+        if (code == "1111")
+        {
+            StartAR();
+            ForceTimerCompletion();
+            enableAdjustmentUi = true;
+            showAdjustmentUiAfterLock = true;
+            BuildAdjustmentUi();
+            SetAdjustmentUiVisible(true);
+            return true;
+        }
+
         return false;
     }
 
