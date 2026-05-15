@@ -42,7 +42,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _QueueControl: 0
-    - _TimeLeft: 70
+    - _TimeLeft: 6000
     - _VALUE: 34.7
     - _Value: 65.9
     m_Colors:

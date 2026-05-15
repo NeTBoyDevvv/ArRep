@@ -1358,12 +1358,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CountdownTimerMaterialTimeLeftBridge
   findCountdownTimerAutomatically: 1
   countdownTimer: {fileID: 0}
+  hoursRenderer: {fileID: 0}
+  hoursMaterialIndex: 0
   minutesRenderer: {fileID: 7718724307068459462}
   minutesMaterialIndex: 0
   secondsRenderer: {fileID: 8588447992596748440}
   secondsMaterialIndex: 0
   timeLeftPropertyName: TimeLeft
   useWholeSeconds: 1
+  onTimerCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &3185201161634248812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15074,6 +15079,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3516230771005242343, guid: 7b3ac50506d2e26459920c854adfea23,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -3080063820295982631, guid: 7b3ac50506d2e26459920c854adfea23,
         type: 3}

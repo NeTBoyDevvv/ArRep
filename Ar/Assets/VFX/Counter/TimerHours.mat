@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TimerMinutes
+  m_Name: TimerHours
   m_Shader: {fileID: -6465566751694194690, guid: 01f8be3c34d11cb4a9f5ba1267efa424,
     type: 3}
   m_Parent: {fileID: -876546973899608171, guid: 01f8be3c34d11cb4a9f5ba1267efa424,
@@ -44,7 +44,7 @@ Material:
     - _Minutes: 1
     - _QueueControl: 0
     - _TimeLeft: 6000
-    - _TimePower: 1
+    - _TimePower: 2
     - _VALUE: 2
     m_Colors:
     - _Color: {r: 0, g: 0.6392157, b: 1, a: 1}
