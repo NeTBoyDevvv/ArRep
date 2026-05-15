@@ -272,6 +272,14 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         if (code == "1111")
         {
             StartAR();
+            // In debug mode, refreshTargetTimePeriodically can keep the routine looping even when
+            // refreshTransformSettingsPeriodically is off. Restart as one-shot so we fetch once and stop.
+            if (transformSettingsRoutine != null)
+            {
+                StopTransformSettingsRoutine();
+                if (!string.IsNullOrWhiteSpace(transformSettingsCsvUrl))
+                    transformSettingsRoutine = StartCoroutine(TransformSettingsRoutine(oneShot: true));
+            }
             ForceTimerCompletion();
             enableAdjustmentUi = true;
             showAdjustmentUiAfterLock = true;
@@ -454,9 +462,13 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     private IEnumerator TransformSettingsRoutine(bool oneShot)
     {
+        bool firstLoad = true;
         do
         {
-            yield return LoadTransformSettingsFromWeb();
+            bool applyTransform = firstLoad || refreshTransformSettingsPeriodically;
+            bool applyTime = firstLoad || refreshTargetTimePeriodically;
+            yield return LoadTransformSettingsFromWeb(applyTransform, applyTime);
+            firstLoad = false;
 
             if (oneShot || (!refreshTransformSettingsPeriodically && !refreshTargetTimePeriodically))
                 break;
@@ -468,7 +480,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         transformSettingsRoutine = null;
     }
 
-    private IEnumerator LoadTransformSettingsFromWeb()
+    private IEnumerator LoadTransformSettingsFromWeb(bool applyTransform = true, bool applyTime = true)
     {
         string url = BuildTransformSettingsUrl(transformSettingsCsvUrl);
         using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -482,23 +494,23 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
                 yield break;
             }
 
-            if (TryApplyTransformSettingsPayload(request.downloadHandler.text, out string resultMessage))
+            if (TryApplyTransformSettingsPayload(request.downloadHandler.text, applyTransform, applyTime, out string resultMessage))
                 Debug.Log($"[AR Marker] Transform settings loaded from web. {resultMessage}", this);
             else
                 Debug.LogWarning($"[AR Marker] Web transform settings were not applied. {resultMessage}", this);
         }
     }
 
-    private bool TryApplyTransformSettingsPayload(string text, out string resultMessage)
+    private bool TryApplyTransformSettingsPayload(string text, bool applyTransform, bool applyTime, out string resultMessage)
     {
         string trimmedText = text.TrimStart();
         if (trimmedText.StartsWith("{") || trimmedText.StartsWith("["))
-            return TryApplyTransformSettingsJson(text, out resultMessage);
+            return TryApplyTransformSettingsJson(text, applyTransform, applyTime, out resultMessage);
 
-        return TryApplyTransformSettingsCsv(text, out resultMessage);
+        return TryApplyTransformSettingsCsv(text, applyTransform, applyTime, out resultMessage);
     }
 
-    private bool TryApplyTransformSettingsJson(string jsonText, out string resultMessage)
+    private bool TryApplyTransformSettingsJson(string jsonText, bool applyTransform, bool applyTime, out string resultMessage)
     {
         resultMessage = "";
         string trimmedJson = jsonText.Trim();
@@ -534,7 +546,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         bool applied = false;
         StringBuilder sb = new StringBuilder("JSON:");
 
-        if (TryReadTransformValues(row, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        if (applyTransform && TryReadTransformValues(row, out Vector3 position, out Vector3 rotation, out Vector3 scale))
         {
             bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
             localPositionOffset = position;
@@ -546,14 +558,17 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             applied = true;
         }
 
-        string rawTargetTime = !string.IsNullOrWhiteSpace(row.targetTime) ? row.targetTime
-            : !string.IsNullOrWhiteSpace(row.targetMoscowTime) ? row.targetMoscowTime
-            : row.endTime;
-        if (!string.IsNullOrWhiteSpace(rawTargetTime) && networkCountdownTimer != null &&
-            networkCountdownTimer.ApplyTargetTimeFromSettings(rawTargetTime))
+        if (applyTime)
         {
-            sb.Append($" targetTime={rawTargetTime}.");
-            applied = true;
+            string rawTargetTime = !string.IsNullOrWhiteSpace(row.targetTime) ? row.targetTime
+                : !string.IsNullOrWhiteSpace(row.targetMoscowTime) ? row.targetMoscowTime
+                : row.endTime;
+            if (!string.IsNullOrWhiteSpace(rawTargetTime) && networkCountdownTimer != null &&
+                networkCountdownTimer.ApplyTargetTimeFromSettings(rawTargetTime))
+            {
+                sb.Append($" targetTime={rawTargetTime}.");
+                applied = true;
+            }
         }
 
         if (!applied)
@@ -566,7 +581,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         return true;
     }
 
-    private bool TryApplyTransformSettingsCsv(string csvText, out string resultMessage)
+    private bool TryApplyTransformSettingsCsv(string csvText, bool applyTransform, bool applyTime, out string resultMessage)
     {
         resultMessage = "";
 
@@ -596,7 +611,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         bool applied = false;
         StringBuilder sb = new StringBuilder($"Row {selectedRowIndex + 1}:");
 
-        if (TryReadTransformValues(rows[selectedRowIndex], headerMap, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        if (applyTransform && TryReadTransformValues(rows[selectedRowIndex], headerMap, out Vector3 position, out Vector3 rotation, out Vector3 scale))
         {
             bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
             localPositionOffset = position;
@@ -608,17 +623,20 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             applied = true;
         }
 
-        string[] targetTimeAliases = { "targetTime", "targetMoscowTime", "endTime" };
-        foreach (string alias in targetTimeAliases)
+        if (applyTime)
         {
-            if (TryGetRawField(rows[selectedRowIndex], headerMap, alias, out string rawTargetTime) &&
-                !string.IsNullOrWhiteSpace(rawTargetTime) &&
-                networkCountdownTimer != null &&
-                networkCountdownTimer.ApplyTargetTimeFromSettings(rawTargetTime))
+            string[] targetTimeAliases = { "targetTime", "targetMoscowTime", "endTime" };
+            foreach (string alias in targetTimeAliases)
             {
-                sb.Append($" targetTime={rawTargetTime}.");
-                applied = true;
-                break;
+                if (TryGetRawField(rows[selectedRowIndex], headerMap, alias, out string rawTargetTime) &&
+                    !string.IsNullOrWhiteSpace(rawTargetTime) &&
+                    networkCountdownTimer != null &&
+                    networkCountdownTimer.ApplyTargetTimeFromSettings(rawTargetTime))
+                {
+                    sb.Append($" targetTime={rawTargetTime}.");
+                    applied = true;
+                    break;
+                }
             }
         }
 
