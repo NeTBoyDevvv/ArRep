@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 383}
-  m_SizeDelta: {x: 0, y: -3035.0203}
+  m_AnchoredPosition: {x: 0, y: 431}
+  m_SizeDelta: {x: 0, y: -3177.0203}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4936844292046575020
 CanvasRenderer:
@@ -94,7 +94,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 154.95
+  m_fontSize: 154.55
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -164,6 +164,7 @@ GameObject:
   - component: {fileID: 8356064464937573704}
   - component: {fileID: 8212528869074962009}
   - component: {fileID: 323662383630867199}
+  - component: {fileID: 4382083887140613663}
   m_Layer: 5
   m_Name: MainCanvas
   m_TagString: Untagged
@@ -270,7 +271,7 @@ MonoBehaviour:
   timerText: {fileID: 3530200621388749982}
   appendTimeSourceLabel: 0
   expiredText: 00d 00:00:00
-  targetMoscowTimeIso: 2026-05-18T19:00:00+03:00
+  targetMoscowTimeIso: 2026-05-18T19:30:00+03:00
   requestTimeoutSeconds: 10
   retryDelayIfOffline: 30
   resyncDelayIfOnline: 300
@@ -281,9 +282,22 @@ MonoBehaviour:
   localEulerOffset: {x: 0, y: 0, z: 0}
   localScaleMultiplier: {x: 1, y: 1, z: 1}
   disableTimerGameObjectAfterCompletion: 1
+  autoAdvanceIntervalMinutes: 10
   onReachedUsingInternetTime:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &4382083887140613663
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701690716817461880}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &739444157144709792
 GameObject:
   m_ObjectHideFlags: 0
@@ -728,7 +742,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 3228.7166}
+  m_SizeDelta: {x: 0, y: 3370.2537}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &6759321115707031029
 CanvasRenderer:
@@ -758,7 +772,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1362334729, guid: 52355f25862a4d740a4757f47a545874, type: 3}
+  m_Sprite: {fileID: -2078531377, guid: 61e093bac7267b74fb497f7c73f47d9d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -801,8 +815,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 3185.5515}
+  m_AnchoredPosition: {x: 0, y: -0.00012207031}
+  m_SizeDelta: {x: 0, y: 3316.2136}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &3445209277197115987
 GameObject:
@@ -839,8 +853,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 327.15002, y: 1532}
-  m_SizeDelta: {x: -722.90283, y: -3150.9028}
+  m_AnchoredPosition: {x: 327.15002, y: 1598}
+  m_SizeDelta: {x: -722.90283, y: -3292.9028}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2627912670793396736
 CanvasRenderer:
@@ -959,8 +973,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 116}
-  m_SizeDelta: {x: -68.61182, y: -3114.4712}
+  m_AnchoredPosition: {x: 0.0045166016, y: 143}
+  m_SizeDelta: {x: -68.61182, y: -3256.4712}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4539957986088569255
 CanvasRenderer:
@@ -1459,7 +1473,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6409375158821682087}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1035064998715183321}
+        m_TargetAssemblyTypeName: RapidClickCodeArStarter, Assembly-CSharp
+        m_MethodName: HideCanvasGroup
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6961905763855381701
 GameObject:
   m_ObjectHideFlags: 0
@@ -1974,7 +2000,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 0
   m_Interactable: 0
-  m_BlocksRaycasts: 0
+  m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
 --- !u!114 &1035064998715183321
 MonoBehaviour:
@@ -1994,7 +2020,6 @@ MonoBehaviour:
   codeCanvasGroup: {fileID: 8184893685291109282}
   codeInputField: {fileID: 3236739485622980268}
   confirmButton: {fileID: 3831425230308491276}
-  correctCode: 1419
   hidePanelOnAwake: 1
   hidePanelAfterSuccess: 1
   arLauncher: {fileID: 0}
