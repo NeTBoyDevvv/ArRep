@@ -55,6 +55,10 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         public float[] scaleMultiplier;
         public float[] localScaleMultiplier;
         public float[] spawnScale;
+
+        public string targetTime;
+        public string targetMoscowTime;
+        public string endTime;
     }
 
     [System.Serializable]
@@ -128,6 +132,10 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
     [SerializeField, Min(1)] private int transformSettingsRequestTimeoutSeconds = 10;
     [SerializeField, Min(5f)] private float transformSettingsRefreshSeconds = 30f;
 
+    [Header("Timer Settings")]
+    [SerializeField] private NetworkCountdownTimer networkCountdownTimer;
+    [SerializeField] private bool refreshTargetTimePeriodically;
+
 
     private readonly Dictionary<TrackableId, GameObject> spawnedContent = new Dictionary<TrackableId, GameObject>();
 
@@ -174,6 +182,9 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
 
     private void Awake()
     {
+        if (networkCountdownTimer == null)
+            networkCountdownTimer = FindFirstObjectByType<NetworkCountdownTimer>(FindObjectsInactive.Include);
+
         ApplyPerformanceSettings();
         BuildARRig();
         BuildAdjustmentUi();
@@ -436,7 +447,7 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
         {
             yield return LoadTransformSettingsFromWeb();
 
-            if (oneShot || !refreshTransformSettingsPeriodically)
+            if (oneShot || (!refreshTransformSettingsPeriodically && !refreshTargetTimePeriodically))
                 break;
 
             yield return new WaitForSecondsRealtime(Mathf.Max(5f, transformSettingsRefreshSeconds));
@@ -509,21 +520,38 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             return false;
         }
 
-        if (!TryReadTransformValues(row, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        bool applied = false;
+        StringBuilder sb = new StringBuilder("JSON:");
+
+        if (TryReadTransformValues(row, out Vector3 position, out Vector3 rotation, out Vector3 scale))
         {
-            resultMessage = "Selected JSON row does not contain transform values.";
+            bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
+            localPositionOffset = position;
+            localEulerOffset = rotation;
+            localScaleMultiplier = scale;
+            if (changed)
+                ApplyRuntimeTransformSettings();
+            sb.Append($" pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.");
+            applied = true;
+        }
+
+        string rawTargetTime = !string.IsNullOrWhiteSpace(row.targetTime) ? row.targetTime
+            : !string.IsNullOrWhiteSpace(row.targetMoscowTime) ? row.targetMoscowTime
+            : row.endTime;
+        if (!string.IsNullOrWhiteSpace(rawTargetTime) && networkCountdownTimer != null &&
+            networkCountdownTimer.ApplyTargetTimeFromSettings(rawTargetTime))
+        {
+            sb.Append($" targetTime={rawTargetTime}.");
+            applied = true;
+        }
+
+        if (!applied)
+        {
+            resultMessage = "Selected JSON row does not contain transform or timer values.";
             return false;
         }
 
-        bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
-        localPositionOffset = position;
-        localEulerOffset = rotation;
-        localScaleMultiplier = scale;
-
-        if (changed)
-            ApplyRuntimeTransformSettings();
-
-        resultMessage = $"JSON: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
+        resultMessage = sb.ToString();
         return true;
     }
 
@@ -554,21 +582,42 @@ public class CrossPlatformARImageMarkerLauncher : MonoBehaviour
             return false;
         }
 
-        if (!TryReadTransformValues(rows[selectedRowIndex], headerMap, out Vector3 position, out Vector3 rotation, out Vector3 scale))
+        bool applied = false;
+        StringBuilder sb = new StringBuilder($"Row {selectedRowIndex + 1}:");
+
+        if (TryReadTransformValues(rows[selectedRowIndex], headerMap, out Vector3 position, out Vector3 rotation, out Vector3 scale))
         {
-            resultMessage = $"Row {selectedRowIndex + 1} does not contain transform columns.";
+            bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
+            localPositionOffset = position;
+            localEulerOffset = rotation;
+            localScaleMultiplier = scale;
+            if (changed)
+                ApplyRuntimeTransformSettings();
+            sb.Append($" pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.");
+            applied = true;
+        }
+
+        string[] targetTimeAliases = { "targetTime", "targetMoscowTime", "endTime" };
+        foreach (string alias in targetTimeAliases)
+        {
+            if (TryGetRawField(rows[selectedRowIndex], headerMap, alias, out string rawTargetTime) &&
+                !string.IsNullOrWhiteSpace(rawTargetTime) &&
+                networkCountdownTimer != null &&
+                networkCountdownTimer.ApplyTargetTimeFromSettings(rawTargetTime))
+            {
+                sb.Append($" targetTime={rawTargetTime}.");
+                applied = true;
+                break;
+            }
+        }
+
+        if (!applied)
+        {
+            resultMessage = $"Row {selectedRowIndex + 1} does not contain transform or timer columns.";
             return false;
         }
 
-        bool changed = position != localPositionOffset || rotation != localEulerOffset || scale != localScaleMultiplier;
-        localPositionOffset = position;
-        localEulerOffset = rotation;
-        localScaleMultiplier = scale;
-
-        if (changed)
-            ApplyRuntimeTransformSettings();
-
-        resultMessage = $"Row {selectedRowIndex + 1}: pos={FormatVector3(localPositionOffset)}, rot={FormatVector3(localEulerOffset)}, scale={FormatVector3(localScaleMultiplier)}.";
+        resultMessage = sb.ToString();
         return true;
     }
 

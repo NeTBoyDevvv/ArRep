@@ -624,6 +624,8 @@ MonoBehaviour:
   refreshTransformSettingsPeriodically: 0
   transformSettingsRequestTimeoutSeconds: 10
   transformSettingsRefreshSeconds: 30
+  networkCountdownTimer: {fileID: 0}
+  refreshTargetTimePeriodically: 1
 --- !u!1001 &7452926328818509418
 PrefabInstance:
   m_ObjectHideFlags: 0

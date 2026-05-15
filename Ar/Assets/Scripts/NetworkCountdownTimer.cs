@@ -311,6 +311,28 @@ public class NetworkCountdownTimer : MonoBehaviour
         Debug.Log($"[{nameof(NetworkCountdownTimer)}] Target auto-advanced to {targetTime:yyyy-MM-dd HH:mm:ss zzz}", this);
     }
 
+    public bool ApplyTargetTimeFromSettings(string isoTime)
+    {
+        if (!DateTimeOffset.TryParse(isoTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset parsedTime))
+        {
+            Debug.LogWarning($"[{nameof(NetworkCountdownTimer)}] ApplyTargetTimeFromSettings: invalid ISO time '{isoTime}'.", this);
+            return false;
+        }
+
+        targetMoscowTimeIso = isoTime;
+        targetTime = parsedTime;
+
+        DateTimeOffset referenceNow = GetCurrentReferenceTime();
+        if (targetTime > referenceNow)
+            hasInvokedReachedEvent = false;
+        else
+            AdvanceTargetTimeIfPassed(referenceNow);
+
+        UpdateTimerText();
+        Debug.Log($"[{nameof(NetworkCountdownTimer)}] Target time updated from settings: {targetTime:yyyy-MM-dd HH:mm:ss zzz}", this);
+        return true;
+    }
+
     private void TryInvokeReachedEvent()
     {
         if (hasInvokedReachedEvent || !hasTrustedInternetTime)
