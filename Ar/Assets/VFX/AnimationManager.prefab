@@ -5961,7 +5961,8 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6026397315942030513, guid: fecfbc9e342dc574a8c480819ed6fa4f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -11686,7 +11687,8 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6026397315942030513, guid: fecfbc9e342dc574a8c480819ed6fa4f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -14144,7 +14146,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fireworks blue pion
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6026397315942030513, guid: fecfbc9e342dc574a8c480819ed6fa4f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -14747,7 +14750,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fireworks blue pion (1)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6026397315942030513, guid: fecfbc9e342dc574a8c480819ed6fa4f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
