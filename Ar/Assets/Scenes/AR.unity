@@ -187,18 +187,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &151310696 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1035064998715183321, guid: f986c1c5599da9f4e98de423181aa637,
-    type: 3}
-  m_PrefabInstance: {fileID: 7452926328818509418}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c3844c3540aa1d488285940f59a9a2b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RapidClickCodeArStarter
 --- !u!1 &241712052
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,50 +622,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 323662383630867199, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: targetMoscowTimeIso
-      value: 2026-05-18T19:30:00+03:00
-      objectReference: {fileID: 0}
     - target: {fileID: 701690716817461880, guid: f986c1c5599da9f4e98de423181aa637,
         type: 3}
       propertyPath: m_Name
       value: MainCanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 151310696}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: HideCanvasGroup
-      objectReference: {fileID: 0}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: RapidClickCodeArStarter, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 2254485723571558560, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 2616203628387251849, guid: f986c1c5599da9f4e98de423181aa637,
         type: 3}
@@ -784,25 +732,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7817471319134280480, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 2056513642, guid: 79ceba0d101ae1a4ea919f980722e52b,
-        type: 3}
-    - target: {fileID: 8184893685291109282, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      propertyPath: m_BlocksRaycasts
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 701690716817461880, guid: f986c1c5599da9f4e98de423181aa637,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7452926328818509429}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f986c1c5599da9f4e98de423181aa637, type: 3}
 --- !u!114 &7452926328818509419 stripped
 MonoBehaviour:
@@ -816,24 +749,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!1 &7452926328818509420 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 701690716817461880, guid: f986c1c5599da9f4e98de423181aa637,
+--- !u!225 &7452926328818509429 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 4382083887140613663, guid: f986c1c5599da9f4e98de423181aa637,
     type: 3}
   m_PrefabInstance: {fileID: 7452926328818509418}
   m_PrefabAsset: {fileID: 0}
---- !u!225 &7452926328818509429
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7452926328818509420}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
