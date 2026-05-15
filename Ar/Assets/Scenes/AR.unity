@@ -601,11 +601,11 @@ MonoBehaviour:
   lockContentAfterFirstMarkerFound: 1
   lockDelaySeconds: 0
   keepPlacedObjectFacingCameraOnY: 0
-  showAdjustmentUiAfterLock: 1
+  showAdjustmentUiAfterLock: 0
   positionAdjustmentRange: 1
   scaleAdjustmentMin: 0.01
   scaleAdjustmentMax: 3
-  enableAdjustmentUi: 1
+  enableAdjustmentUi: 0
   disableVSync: 1
   useDisplayRefreshRate: 1
   fallbackTargetFrameRate: 120
